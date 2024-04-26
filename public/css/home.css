@@ -1,0 +1,76 @@
+.top-container {
+    /* margin-bottom: 20px; */
+    background-color: #007bff;
+    /* Khoảng cách giữa top-container và bottom-container */
+}
+
+.bottom-container {
+    display: flex;
+    justify-content: center;
+    /* Canh giữa theo chiều ngang */
+    align-items: center;
+    /* Canh giữa theo chiều dọc */
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin: 200px 200px auto; 
+    /* margin-top: 200px; */
+    /* Để canh giữa */
+    max-width: 1200px;
+    /* Độ rộng tối đa của container */
+}
+
+.car {
+    border: 10px solid #ccc;
+    padding: 10px;
+    cursor: pointer;
+    /* Thêm con trỏ nhấp vào */
+}
+
+.car img {
+    width: 100%;
+    /* Ảnh sẽ căn chiều rộng của phần tử cha */
+    height: auto;
+}
+
+.car button {
+    margin-top: 5px;
+}
+
+.pagination {
+    margin-top: 20px;
+    /* Khoảng cách giữa container và phân trang */
+    display: flex;
+    justify-content: center;
+    /* Canh giữa theo chiều ngang */
+    align-items: center;
+    /* Canh giữa theo chiều dọc */
+}
+
+.pagination button {
+    margin: 0 5px;
+    /* Khoảng cách giữa các nút */
+}
+
+.active-page {
+    background-color: #007bff;
+    color: #fff;
+}
+
+h3 {
+    color: blue;
+    /* Màu chữ của các phần tử h3 sẽ là màu xanh */
+}
+
+p {
+    color: red;
+    /* Màu chữ của các phần tử p sẽ là màu đỏ */
+}
+
+.image-size {
+    width: 200px !important;
+    height: 150px !important;
+}

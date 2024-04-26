@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký</title>
+    <link rel="stylesheet" href="/public/css/register.css">
+    <script
+        src="https://www.google.com/recaptcha/enterprise.js?render=6LfPYscpAAAAANFAF80-m0TiK0dLW-hjM2ybUJy7"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <!-- Đặt logo của bạn ở đây -->
+            <img src="logo.png" alt="Logo">
+        </div>
+        <form id="register-form">
+            <input type="tel" id="phone" placeholder="Số Điện Thoại" required>
+            <input type="password" id="password" placeholder="Mật khẩu" required>
+            <input type="password" id="confirm-password" placeholder="Xác Nhận Mật Khẩu" required>
+            <div class="g-recaptcha" data-sitekey="6LfPYscpAAAAANFAF80-m0TiK0dLW-hjM2ybUJy7"></div>
+            <!-- Thay YOUR_SITE_KEY bằng mã site key của bạn -->
+            <button type="submit">Đăng ký</button>
+        </form>
+    </div>
+    <script src="/public/js/register.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Images</title>
+</head>
+<body>
+    <h1>Upload Images</h1>
+    <input type="file" id="imageInput" multiple>
+    <button onclick="uploadImages()">Upload</button>
+
+    <script>
+        // Function to handle image upload
+        function uploadImages() {
+            const fileInput = document.getElementById('imageInput');
+            const files = fileInput.files;
+
+            if (files.length === 0) {
+                alert('Please select at least one image.');
+                return;
+            }
+
+            const formData = new FormData();
+
+            // Append each selected file to FormData
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images', files[i]);
+            }
+
+            // Send FormData to server
+            fetch('/uploadImage', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Images uploaded successfully.');
+                } else {
+                    alert('Error uploading images.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error uploading images.');
+            });
+        }
+    </script>
+</body>
+</html>
