@@ -7,7 +7,8 @@ document.getElementById('register-form').addEventListener('submit', function (ev
     var phone = document.getElementById('phone').value;
     var password = document.getElementById('password').value;
     var confirmPassword = document.getElementById('confirm-password').value;
-
+    // Gửi dữ liệu đăng ký đi ở đây
+    // Ví dụ: sử dụng Ajax hoặc fetch để gửi dữ liệu đăng ký đến server
     if (password !== confirmPassword) {
         alert('Mật khẩu và xác nhận mật khẩu không khớp!');
         return;
