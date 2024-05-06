@@ -27,6 +27,8 @@ body {
 
 input[type="tel"],
 input[type="password"],
+input[type="name"],
+input[type="address"],
 button {
     width: calc(100% - 20px);
     margin-bottom: 10px;

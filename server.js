@@ -7,15 +7,29 @@ const path = require('path')
 const uuid = require('uuid');
 const con = require('./public/js/database')
 const multer = require('multer');
+const moment = require('moment');
+const momentZone = require('moment-timezone');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const createdAt = new Date(); // Giả sử bạn có giá trị createdAt từ cơ sở dữ liệu
+app.use(cookieParser());
+
+const formattedDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+const currentTimeVietnam = momentZone().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss');
+const secretKey = 'congnbkey';
 
 var bodyParser = require('body-parser')
 var cors = require('cors');
+const { Console } = require('console');
 app.use(cors());
 app.use(bodyParser.urlencoded({
     extended: true
 }))
-app.use(cors());
 app.use('/public', express.static(path.join(__dirname, 'public')))
+// app.use((req, res, next) => {
+//     console.log('Cookies received:', req.headers.cookie);
+//     next();
+// });
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
@@ -43,11 +57,133 @@ app.get('/register', (req, res, next) => {
 app.get('/addCars', (req, res, next) => {
     res.sendFile(path.join(__dirname, './public/html/addCar.html'))
 })
+app.get('/test', (req, res, next) => {
+    res.sendFile(path.join(__dirname, './public/html/test.html'))
+})
 app.get('/index', (req, res, next) => {
     res.sendFile(path.join(__dirname, './public/html/index.html'))
 })
 app.post('/uploadImage', upload.array('images', 10), (req, res) => {
     res.send('Hình ảnh đã được tải lên thành công.');
+});
+app.get('/api', (req, res) => {
+    // Xử lý yêu cầu và gửi phản hồi
+    res.json({ message: 'Data received successfully!' });
+});
+app.post('/addUsers', (req, res, next) => {
+    const { ten, sdt, pass, diachi } = req.body;
+
+    // Kiểm tra nếu số điện thoại đã tồn tại trong cơ sở dữ liệu
+    con.query(
+        `SELECT * FROM users WHERE sdt = ?`,
+        [sdt],
+        (err, result) => {
+            if (err) {
+                console.error('Error checking phone number in MySQL:', err);
+                res.status(500).send('Internal server error');
+                return;
+            }
+
+            if (result.length > 0) {
+                // Nếu số điện thoại đã tồn tại, gửi thông báo về client
+                res.status(200).send('phonetrue');
+            } else {
+                // Nếu số điện thoại không tồn tại, thêm người dùng vào cơ sở dữ liệu
+                const currentTimeVietnam = momentZone().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss');
+
+                const sql = `INSERT INTO users (id_user, ten, sdt, pass, diachi, created_at)  
+                             VALUES (UUID(), ?, ?, ?, ?, ?)`;
+
+                const values = [ten, sdt, pass, diachi, currentTimeVietnam];
+
+                con.query(sql, values, (err, result) => {
+                    if (err) {
+                        console.error('Error inserting data into MySQL:', err);
+                        res.status(500).send('Internal server error');
+                    } else {
+                        console.log('Data inserted successfully into MySQL');
+                        res.status(200).send('true');
+                    }
+                });
+            }
+        }
+    );
+});
+app.post('/Login', (req, res, next) => {
+    const { sdt, pass } = req.body;
+
+    // Kiểm tra nếu số điện thoại và mật khẩu đúng
+    con.query(
+        `SELECT * FROM users WHERE sdt = ? AND pass = ?`,
+        [sdt, pass],
+        (err, result) => {
+            if (err) {
+                console.error('Error checking phone number and password in MySQL:', err);
+                res.status(500).send('Internal server error');
+                return;
+            }
+            if (result.length > 0) {
+                // Nếu tìm thấy người dùng với số điện thoại và mật khẩu khớp, gửi thông tin người dùng về client
+                const user = result[0];
+                const expiresIn = 20;
+                const token = jwt.sign({ id: user.id_user }, secretKey, { expiresIn: expiresIn });
+                const expirationDate = new Date(Date.now() + expiresIn * 1000);
+                res.cookie('jwt', token, { httpOnly: true, expires: expirationDate });
+                res.status(200).json({ token: token }); // 
+            } else {
+                // Nếu không tìm thấy người dùng với số điện thoại và mật khẩu tương ứng, trả về thông báo lỗi
+                res.status(401).send('Số điện thoại hoặc mật khẩu không chính xác');
+            }
+        }
+    );
+});
+
+// Middleware để xác thực token
+function authenticateToken(req, res, next) {
+    const token = req.cookies.jwt; // Lấy token từ cookie, đảm bảo tên của cookie là 'jwt'
+    console.log(token);
+    // Nếu không có token, trả về lỗi 401 Unauthorized
+    if (token == null) {
+        return res.status(401).send('Unauthorized: No token provided');
+    }
+
+    // Xác thực token
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err) {
+            return res.status(403).send('Forbidden: Invalid token');
+        }
+        req.user = user; // Lưu thông tin user vào đối tượng req để sử dụng sau này
+        next(); // Tiếp tục xử lý yêu cầu nếu token hợp lệ
+    });
+}
+
+// Route cần xác thực token
+app.get('/protected', authenticateToken, (req, res) => {
+    const userId = req.user.id; // Lấy ID của người dùng từ token
+    console.log(userId);
+    // Thực hiện truy vấn để lấy thông tin người dùng từ cơ sở dữ liệu
+    con.query(
+        `SELECT * FROM users WHERE id_user = ?`,
+        [userId],
+        (err, result) => {
+            if (err) {
+                console.error('Error fetching user data from database:', err);
+                res.status(500).send('Internal server error');
+                return;
+            }
+
+            // Kiểm tra xem có dữ liệu người dùng hay không
+            if (result.length > 0) {
+                // Nếu có dữ liệu, gửi thông tin người dùng về client dưới dạng JSON
+                const userData = result[0];
+                res.json(userData);
+            } else {
+                // Nếu không tìm thấy người dùng, gửi thông báo lỗi về client
+                console.log("khogn tim thay user");
+                res.status(404).send('User not found');
+            }
+        }
+    );
 });
 
 

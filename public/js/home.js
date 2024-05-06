@@ -11,7 +11,24 @@ document.addEventListener("DOMContentLoaded", function () {
     // <h1>${car.id_car}</h1>
     // <img src="${car.image1}" alt="${car.carname}" class="image-size"></img>
     // 
+    // const jwtCookie = getCookie('jwt');
+    // if (jwtCookie) {
+    //     alert('Value of "jwt" cookie: ' + jwtCookie);
+    // } else {
+    //     alert('Cookie "jwt" not found');
+    // }
     getCars();
+    // function getCookie(cookieName) {
+    //     const cookieString = document.cookie;
+    //     const cookies = cookieString.split(';').map(cookie => cookie.trim().split('='));
+    //     for (const [name, value] of cookies) {
+    //         if (name === cookieName) {
+    //             return value;
+    //         }
+    //     }
+    //     return null; // Trả về null nếu không tìm thấy cookie
+    // }
+
     function getRandomNumber() {
         // Sinh số ngẫu nhiên từ 1 đến 7
         return Math.floor(Math.random() * 7) + 1;
@@ -38,6 +55,9 @@ document.addEventListener("DOMContentLoaded", function () {
             carCollection.appendChild(carElement);
         }
     }
+
+
+
     // Function để tạo nút phân trang
     function createPaginationButtons() {
         pagination.innerHTML = ''; // Xóa nút phân trang cũ trước khi tạo mới
