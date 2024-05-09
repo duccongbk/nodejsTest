@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa người dùng</title>
+    <link rel="stylesheet" href="/public/css/editUser.css">
+</head>
+
+<body>
+    <h2>Chỉnh sửa thông tin người dùng</h2>
+    <form id="form-data" class="formcontainer" action="#" >
+        <label for="name">Tên:</label>
+        <input type="text" id="name" name="name" value="">
+
+        <label for="phone">Số điện thoại:</label>
+        <input type="text" id="phone" name="phone" value="">
+
+        <label for="address">Địa chỉ:</label>
+        <input type="text" id="address" name="address" value="" readonly>
+
+        <label for="registrationDate">Ngày đăng ký:</label>
+        <input type="text" id="registrationDate" name="registrationDate" value="" readonly>
+
+        <button id="savebutton" type="submit">Save</button>
+    </form>
+    <script src="/public/js/editUser.js"></script>
+</body>
+
+</html>

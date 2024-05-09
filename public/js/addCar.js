@@ -67,7 +67,7 @@ function submitForm() {
 
     // Tạo FormData và thêm các trường dữ liệu
     const formData = new FormData();
-    formData.append('id_user', '3b4b954f-01e9-11ef-a');
+    formData.append('id_user', '5323175a-0dd7-11ef-be51-b42e997fc79f');
     formData.append('carname', carnameInput);
     formData.append('automaker', automakerInput);
     formData.append('price', priceInput);
@@ -77,6 +77,7 @@ function submitForm() {
     selectedImages.forEach((file, index) => {
         formData.append('images', file); // Sử dụng tên trường 'images'
     });
+    formData.append('active', false);
 
     // Gửi yêu cầu POST đến server
     fetch('/addCars', {

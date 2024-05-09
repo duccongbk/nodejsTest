@@ -63,6 +63,12 @@ const loginInstance = new Login();
 
 // Gọi phương thức useFetchData của đối tượng loginInstance khi trang web được tải
 document.addEventListener("DOMContentLoaded", async function () {
+    const registerbtn = document.getElementById('registerBtn'); 3
+    registerbtn.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent form submission
+        window.location.href = '/register';
+
+    });
     try {
         await loginInstance.useFetchData();
     } catch (error) {

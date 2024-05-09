@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bán Xe Oto</title>
+    <link rel="stylesheet" href="/public/css/admin.css">
+</head>
+
+<body>
+    <header>
+        <h1>Bán Xe Oto</h1>
+    </header>
+    <div class="container" id="container">
+        <aside>
+            <nav>
+                <ul id="menu">
+                    <li class="imgicon"><a href="#"><img src="/path/to/categories-icon.png" alt="Dashboard"></a></li>
+                    <li><a href="#" id="Users"><img src="/path/to/products-icon.png" alt="Users"></a>
+
+                    </li>
+                    <div class="dropdown-menu-Users" id="dropdown-menu-Users" style="display: none;">
+                        <ul>
+                            <li><button id="Show-btn1">Show Users</button></li>
+                            <li><button id="sign-out-btn2">By Price</button></li>
+                        </ul>
+                    </div>
+                    <li><a href="#"><img src="/path/to/categories-icon.png" alt="Categories"></a></li>
+                    <li><a href="#" id="Products"><img src="/path/to/users-icon.png" alt="Products"></a></li>
+                    <div class="dropdown-menu-Products" id="dropdown-menu-Products" style="display: none;">
+                        <ul>
+                            <li><button id="Show-btn-Products">Show Products</button></li>
+                            <li><button id="sign-out-btn2">By Price</button></li>
+                        </ul>
+                    </div>
+                    <li><a href="#"><img src="/path/to/orders-icon.png" alt="Orders"></a></li>
+                    <li><a href="#"><img src="/path/to/reports-icon.png" alt="Reports"></a></li>
+                    <li><a href="#"><img src="/path/to/settings-icon.png" alt="Settings"></a></li>
+                    <li><a href="#"><img src="/path/to/messages-icon.png" alt="Messages"></a></li>
+                    <li><a href="#"><img src="/path/to/notifications-icon.png" alt="Notifications"></a></li>
+                    <li><a href="#"><img src="/path/to/help-icon.png" alt="Help"></a></li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="content" id="content-all">
+            <h2>All Products</h2>
+            <table class="userTable" id="userTable" style="display: none;">
+                <!-- <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên</th>
+                        <th>Số điện thoại</th>
+                        <th>Địa chỉ</th>
+                        <th>Ngày đăng ký</th>
+                    </tr>
+                </thead> -->
+                <tbody id="userTableBody">
+                    <!-- Dữ liệu từ cơ sở dữ liệu sẽ được thêm vào đây -->
+
+
+                    <tr class="search-container">
+
+                        </td>
+                    </tr>
+                </tbody>
+                <td colspan="5"> <!-- Sử dụng colspan để ngang hàng với số cột của bảng -->
+                    <input type="text" id="searchInput" placeholder="Nhập từ khóa...">
+                    <button id="btn-search" type="submit">Tìm kiếm</button>
+                    <button id="btn-reload" type="submit">Reload</button>
+            </table>
+            <div class="pagination" id="pagination"></div>
+
+            <p></p>
+        </div>
+
+    </div>
+    <footer>
+        <p>&copy; 2024 Orange Theme. All rights reserved.</p>
+    </footer>
+
+    <div id="user-profile">
+        <img src="/path/to/avatar.jpg" alt="User Avatar">
+        <span>User Name</span>
+        <div class="dropdown-menu" id="dropdown-menu" style="display: none;">
+            <ul>
+                <li><button id="sign-out-btn1">Settings</button></li>
+                <li><button id="sign-out-btn2">Sign Out</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="/public/js/admin.js"></script>
+</body>
+
+</html>
