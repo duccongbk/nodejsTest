@@ -47,11 +47,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 <h3>${car.carname}</h3>
                 <p>Giá: ${car.price}</p>
-                <p2>Hãng: ${car.automaker}</p2>
+                <p>Hãng: ${car.automaker}</p>
                 <img src="${car['image' + a]}" alt="${car.carname}" class="image-size"></img>
                 <!-- Thêm các hình ảnh khác tại đây -->
                 <button class="add-to-cart-btn">Thêm vào giỏ hàng</button>
             `;
+            carElement.addEventListener('click', (event) => {
+                // Xử lý khi carElement được click
+                // event.preventDefault();
+                // alert(`${car.id_car}`);
+                window.open(`/showCarInfo?id_car=${car.id_car}`, '_blank');
+                // Thêm code xử lý khác nếu cần
+            });
             carCollection.appendChild(carElement);
         }
     }
@@ -107,16 +114,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Sự kiện cho container chứa tất cả các sản phẩm
-    carCollection.addEventListener('click', function (event) {
-        if (event.target.classList.contains('add-to-cart-btn')) {
-            const productName = event.target.parentNode.querySelector('h3').textContent;
-            addToCart(productName);
-        } else {
-            const productName = event.target.parentNode.querySelector('h1').textContent;
-            viewCar(productName);
+    // carCollection.addEventListener('click', function (event) {
+    //     if (event.target.classList.contains('add-to-cart-btn')) {
+    //         const productName = event.target.parentNode.querySelector('h3').textContent;
+    //         addToCart(productName);
+    //     } else {
+    //         const productName = event.target.parentNode.querySelector('h3').textContent;
+    //         viewCar(productName);
 
-        }
-    });
+    //     }
+    // });
 
     function getCars() {
         fetch('/getCars', {

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Information</title>
+    <link rel="stylesheet" href="/public/css/showCarInfo.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
+</head>
+
+<body>
+    <div class="container-wrapper">
+        <div class="container" id="car-list">
+            <div class="car-card">
+                <h1 class="car-name"></h1>
+                <p class="car-details car-automaker"><strong>Automaker:</strong></p>
+                <p class="car-details car-price"><strong>Price:</strong></p>
+                <p class="car-description car-description"></p>
+                <div class="car-owner">
+                    <h2 class="owner-title">Owner Information</h2>
+                    <p class="owner-details owner-name"><strong>Name:</strong></p>
+                    <p class="owner-details owner-phone"><strong>Phone:</strong></p>
+                    <p class="owner-details owner-address"><strong>Address:</strong></p>
+                </div>
+                <div class="car-images"></div>
+                <div class="like-dislike-container">
+                    <button class="like-btn">Like</button>
+                    <button class="dislike-btn">Dislike</button>
+                    <p class="like-count">1000 Likes</p>
+                    <p class="dislike-count">100 Dislikes</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="comment-form" id="comment-form">
+            <form class="form_user_comment" id="form_user_comment">
+                <div class="comment_User" id="comment_User">
+                    <ul>
+                        <li>a</li>
+                        <li>b</li>
+                        <li>c</li>
+                        <li>d</li>
+                        <li>e</li>
+                        <li>f</li>
+                        <li>g</li>
+                        <li>h</li>
+                        <li>a</li>
+                        <li>b</li>
+                        <li>c</li>
+                        <li>d</li>
+                        <li>e</li>
+                        <li>f</li>
+                        <li>g</li>
+                        <li>h</li>
+                        <li>a</li>
+                        <li>g</li>
+                        <li>h</li>
+
+                    </ul>
+                </div>
+                <textarea name="comment" id="comment" placeholder="Write your comment here..." required></textarea>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/public/js/showCarInfo.js"></script>
+</body>
+
+</html>

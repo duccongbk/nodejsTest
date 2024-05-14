@@ -3,7 +3,7 @@
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
-    border: 1px solid #ccc;
+    border: 2px solid #f48f0a;
     border-radius: 5px;
 }
 
@@ -31,7 +31,7 @@ textarea {
 }
 
 button[type="button"] {
-    background-color: #007bff;
+    background-color: #eb942f;
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -40,7 +40,7 @@ button[type="button"] {
 }
 
 button[type="button"]:hover {
-    background-color: #0056b3;
+    background-color: #ef9e07;
 }
 
 .preview-image {
@@ -112,6 +112,7 @@ h1 {
     text-decoration: none;
     font-size: 16px;
 }
+
 .alert {
     position: fixed;
     top: 50%;
@@ -122,5 +123,6 @@ h1 {
     padding: 20px;
     border-radius: 5px;
     border: 1px solid #f5c6cb;
-    z-index: 9999; /* Đảm bảo hiển thị trên tất cả các phần khác */
+    z-index: 9999;
+    /* Đảm bảo hiển thị trên tất cả các phần khác */
 }

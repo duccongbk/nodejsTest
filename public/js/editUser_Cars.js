@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
     const urlParams = new URLSearchParams(window.location.search);
     const idUser = urlParams.get('id_user');
+    const choosen = urlParams.get('choosen'); // Lấy tham số choosen từ URL
+
     const saveButton = document.getElementById('savebutton');
 
     getUser(idUser);

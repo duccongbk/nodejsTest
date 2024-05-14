@@ -74,6 +74,9 @@ app.get('/home', (req, res, next) => {
 app.get('/login', (req, res, next) => {
     res.sendFile(path.join(__dirname, './public/html/login.html'))
 })
+app.get('/showCar', (req, res, next) => {
+    res.sendFile(path.join(__dirname, './public/html/showCar.html'))
+})
 app.get('/register', (req, res, next) => {
     res.sendFile(path.join(__dirname, './public/html/register.html'))
 })
@@ -86,8 +89,11 @@ app.get('/test', (req, res, next) => {
 app.get('/index', (req, res, next) => {
     res.sendFile(path.join(__dirname, './public/html/index.html'))
 })
-app.get('/editUser', (req, res, next) => {
-    res.sendFile(path.join(__dirname, './public/html/editUser.html'))
+app.get('/editUser_Car', (req, res, next) => {
+    res.sendFile(path.join(__dirname, './public/html/editUser_Car.html'))
+})
+app.get('/showCarInfo', (req, res, next) => {
+    res.sendFile(path.join(__dirname, './public/html/showCarInfo.html'))
 })
 app.post('/uploadImage', upload.array('images', 10), (req, res) => {
     res.send('Hình ảnh đã được tải lên thành công.');
@@ -445,7 +451,35 @@ app.get('/getCarsInfo', (req, res, next) => {
         res.status(500).json('Lỗi server')
     }
 })
+app.post('/getCarByid', (req, res, next) => {
+    const carId = req.body.id_car; // Lấy ID của người dùng từ token
+    // Thực hiện truy vấn để lấy thông tin người dùng từ cơ sở dữ liệu
+    con.query(
+        `SELECT car.id_car, users.ten AS user_ten, users.sdt AS user_sdt, users.diachi AS user_diachi, carname, automaker, price, description,image1,image2,image3,image4,image5,image6,image7, active, car.created_at AS car_created_at
+        FROM car
+        LEFT JOIN users ON car.id_user = users.id_user
+        WHERE car.id_car = '${carId}';`,
 
+        (err, result) => {
+            if (err) {
+                console.error('Error fetching user data from database:', err);
+                res.status(500).send('Internal server error');
+                return;
+            }
+
+            // Kiểm tra xem có dữ liệu người dùng hay không
+            if (result.length > 0) {
+                // Nếu có dữ liệu, gửi thông tin người dùng về client dưới dạng JSON
+                const carData = result[0];
+                res.json(carData);
+            } else {
+                // Nếu không tìm thấy người dùng, gửi thông báo lỗi về client
+                console.log("khong tim thay car");
+                res.status(404).send('car not found');
+            }
+        }
+    );
+});
 
 app.post('/addCars', upload.array('images', 7), (req, res, next) => {
     const { id_user, carname, automaker, price, description, active } = req.body;

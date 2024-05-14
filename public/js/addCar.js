@@ -4,11 +4,135 @@ const imageContainer = document.getElementById('imagePreview');
 const carForm = document.getElementById('carForm');
 
 let selectedImages = [];
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById('automaker').addEventListener('change', updateAutomakerOptions);
+    document.getElementById('price').addEventListener('input', () => formatPrice(document.getElementById('price')));
+});
+const namsanxuatSelect = document.getElementById('namsanxuat');
+
+// Lấy năm hiện tại
+const currentYear = new Date().getFullYear();
+
+// Xác định phạm vi năm bạn muốn cung cấp
+const startYear = currentYear - 50; // Ví dụ: từ năm 50 năm trước đến năm nay
+
+// Tạo danh sách các năm và thêm chúng vào select element
+for (let year = currentYear; year >= startYear; year--) {
+    const option = document.createElement('option');
+    option.value = year;
+    option.text = year;
+    namsanxuatSelect.appendChild(option);
+}
+// Lấy thẻ select box có id là "hopso"
+const hopsoSelect = document.getElementById('hopso');
+
+// Mảng chứa các loại hộp số
+const hopsoOptions = [
+    'Hộp số sàn ',
+    'Hộp số tự động ',
+    'Hộp số kép ',
+    'Hộp số vô cấp ',
+    'Hộp số bán tự động ',
+    'Hộp số cộng hưởng '
+];
+
+// Điền các loại hộp số vào select box
+hopsoOptions.forEach(option => {
+    const newOption = document.createElement('option');
+    newOption.value = option;
+    newOption.text = option;
+    hopsoSelect.appendChild(newOption);
+});
+function formatPrice(input) {
+    let value = input.value;
+
+    // Remove all non-digit characters
+    value = value.replace(/\D/g, '');
+
+    // Reformat value with commas as thousand separators
+    input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    // Update the formatted price display
+    const formattedValue = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    // document.getElementById('formattedPrice').textContent = formattedValue ? `${formattedValue} đồngxxx` : '';
+
+    // Update the price in words
+    document.getElementById('priceInWords').textContent = value ? convertNumberToWords(value) + `  đồng` : '';
+}
+
+function convertNumberToWords(number) {
+    const units = ["", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
+    const teens = ["mười", "mười một", "mười hai", "mười ba", "mười bốn", "mười lăm", "mười sáu", "mười bảy", "mười tám", "mười chín"];
+    const tens = ["", "", "hai mươi", "ba mươi", "bốn mươi", "năm mươi", "sáu mươi", "bảy mươi", "tám mươi", "chín mươi"];
+    const scales = ["", "nghìn", "triệu", "tỷ"];
+
+    number = parseInt(number);
+    if (number === 0) return "không";
+
+    let words = [];
+    let scaleIndex = 0;
+
+    while (number > 0) {
+        let chunk = number % 1000;
+        if (chunk) {
+            let chunkWords = [];
+            let hundreds = Math.floor(chunk / 100);
+            if (hundreds) {
+                chunkWords.push(units[hundreds]);
+                chunkWords.push("trăm");
+            }
+
+            let remainder = chunk % 100;
+            if (remainder) {
+                if (remainder < 20) {
+                    chunkWords.push(teens[remainder - 10] || units[remainder]);
+                } else {
+                    let tensUnit = Math.floor(remainder / 10);
+                    chunkWords.push(tens[tensUnit]);
+                    let unit = remainder % 10;
+                    if (unit) chunkWords.push(units[unit]);
+                }
+            }
+
+            words = chunkWords.concat(scales[scaleIndex], words);
+        }
+
+        number = Math.floor(number / 1000);
+        scaleIndex++;
+    }
+
+    return words.join(" ");
+}
+function updateAutomakerOptions() {
+    const carname = document.getElementById('carname');
+    const automakerSelect = document.getElementById('automaker').value;
+
+    // Clear current options
+    carname.innerHTML = '<option value="">Chọn Tên Xe</option>';
+
+    // Define automaker options based on carname selection
+    let options = [];
+    if (automakerSelect === 'Honda') {
+        options = ['Honda CR-V', 'Honda City', 'Honda Jazz', 'Honda Civic', 'Honda Accord', 'Honda HR-V', 'Honda Fit', 'Honda Pilot', 'Honda Odyssey', 'Honda Ridgeline', 'Khác'];
+    } else if (automakerSelect === 'Toyota') {
+        options = ['Toyota Corolla', 'Toyota Camry', 'Toyota RAV4', 'Toyota Highlander', 'Toyota Tacoma', 'Toyota Prius', 'Toyota Sienna', 'Toyota Tundra', 'Toyota 4Runner', 'Toyota Avalon', 'Khác'];
+    } else if (automakerSelect === 'Ford') {
+        options = ['Ford F-150', 'Ford Mustang', 'Ford Explorer', 'Ford Escape', 'Ford Ranger', 'Ford Fusion', 'Ford Edge', 'Ford Expedition', 'Ford Focus', 'Ford Bronco', 'Khác'];
+    }
+
+
+    // Add new options to automaker select element
+    options.forEach(option => {
+        const newOption = document.createElement('option');
+        newOption.value = option;
+        newOption.text = option;
+        carname.appendChild(newOption);
+    });
+}
 
 imageInput.addEventListener('change', function (event) {
     const files = event.target.files;
     selectedImages = selectedImages.concat(Array.from(files));
-
     renderImages();
 });
 

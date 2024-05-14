@@ -104,10 +104,19 @@ function ShowCars() {
         });
 }
 
-function editUser(id_user) {
-    window.open(`/editUser?id_user=${id_user}`, '_blank');
+function editUserOrCar(id_user_car, choosen) {
+    if (choosen === 'User') {
+        window.open(`/editUser_Car?id_user=${id_user_car}&choosen=${choosen}`, '_blank');
+    } else if (choosen === 'Car') {
+        window.open(`/editUser_Car?id_car=${id_user_car}&choosen=${choosen}`, '_blank');
+    } else {
+        // Xử lý trường hợp khác nếu cần
+        console.error('Invalid option provided');
+    }
 }
-function deleteUser(id_user) {
+
+
+function deleteUserOrCar(id_user) {
     // Hiển thị hộp thoại xác nhận
     const isConfirmed = confirm("Bạn có chắc chắn muốn xóa người dùng này?");
 
@@ -298,17 +307,17 @@ function displayPage(data, pageNumber, itemsPerPage, choosen) {
                         <td>${item.arrusers.diachi}</td>
                         <td>${convertTime(item.arrusers.created_at)}</td>
                         <td>
-                            <button class="btn" onclick="editUser('${item.arrusers.id_user.toString()}')"><img src="edit_icon.png" alt="Sửa"></button>
+                            <button class="btn" onclick="editUserOrCar('${item.arrusers.id_user.toString()}','User')"><img src="edit_icon.png" alt="Sửa"></button>
                         </td>
                         <td> 
-                            <button class="btn-click" onclick="deleteUser('${item.arrusers.id_user.toString()}')"><img src="delete_icon.png" alt="Xóa"></button>
+                            <button class="btn-click" onclick="deleteUserOrCar('${item.arrusers.id_user.toString()}','User')"><img src="delete_icon.png" alt="Xóa"></button>
                         </td>
                     `;
                     userTableBody.appendChild(row);
                 });
                 break;
             case 'Cars':
-                const columnCars = ['STT', 'Tên', 'Số điện thoại', 'Địa chỉ', 'Tên Xe', 'Hãng Xe'];
+                const columnCars = ['STT', 'Tên', 'Số điện thoại', 'Địa chỉ', 'Tên Xe', 'Hãng Xe', 'Giá Xe', 'Ngày Đăng', 'Trạng Thái'];
                 // Lặp qua mảng columnHeaders để tạo các thẻ <th> và thêm chúng vào <thead>
                 columnCars.forEach(headerText => {
                     const th = document.createElement('th');
@@ -316,18 +325,28 @@ function displayPage(data, pageNumber, itemsPerPage, choosen) {
                     userTableBody.appendChild(th);
                 });
                 pageData.forEach((item, index) => {
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${startIndex + index + 1}</td>
                         <td>${item.arrCars.user_ten}</td>
                         <td>${item.arrCars.user_sdt}</td>
+                        <td>${item.arrCars.user_diachi}</td>
                         <td>${item.arrCars.carname}</td>
-                        <td>${convertTime(item.arrCars.car_created_at)}</td>
+                        <td>${item.arrCars.automaker}</td>
+                        <td>${item.arrCars.price}</td>
+                        <td>${convertTime(item.arrCars.car_created_at)}</td>   
                         <td>
-                            <button class="btn" onclick="editUser('${item.arrCars.carname.toString()}')"><img src="edit_icon.png" alt="Sửa"></button>
+                      <select id="activeDropdown" class="activeDropdown">
+                      <option value="active" ${item.arrCars.active === 'active' ? 'selected' : ''} style="color: green;">Active</option>
+                      <option value="inactive" ${item.arrCars.active === 'inactive' ? 'selected' : ''} style="color: red;">Inactive</option>
+                      </select>
+                        </td>
+                        <td>
+                            <button class="btn" onclick="editUserOrCar('${item.arrCars.id_car.toString()}','Car')"><img src="edit_icon.png" alt="Sửa"></button>
                         </td>
                         <td> 
-                            <button class="btn-click" onclick="deleteUser('${item.arrCars.automaker.toString()}')"><img src="delete_icon.png" alt="Xóa"></button>
+                            <button class="btn-click" onclick="deleteUserOrCar('${item.arrCars.id_car.toString()}','Car')"><img src="delete_icon.png" alt="Xóa"></button>
                         </td>
                     `;
                     userTableBody.appendChild(row);
