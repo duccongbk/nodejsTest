@@ -67,7 +67,17 @@ const storage = multer.diskStorage({
         cb(null, uuid.v4() + '-' + file.originalname); // Tên file duy nhất
     }
 });
+const storageImageComment = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/images/imagesComments/'); // Thư mục lưu trữ ảnh
+    },
+    filename: function (req, file, cb) {
+        cb(null, uuid.v4() + '-' + file.originalname); // Tên file duy nhất
+    }
+});
+
 const upload = multer({ storage: storage });
+const uploadImagesComment = multer({ storage: storageImageComment });
 app.get('/home', (req, res, next) => {
     res.sendFile(path.join(__dirname, './public/html/home.html'))
 })
@@ -141,8 +151,6 @@ app.delete('/deleteUser', (req, res, next) => {
         }
     );
 });
-
-
 app.post('/addUsers', (req, res, next) => {
     const { ten, sdt, pass, diachi } = req.body;
 
@@ -198,7 +206,7 @@ app.post('/Login', (req, res, next) => {
             if (result.length > 0) {
                 // Nếu tìm thấy người dùng với số điện thoại và mật khẩu khớp, gửi thông tin người dùng về client
                 const user = result[0];
-                const expiresIn = 20;
+                const expiresIn = 1000;
                 const token = jwt.sign({ id: user.id_user }, secretKey, { expiresIn: expiresIn });
                 const expirationDate = new Date(Date.now() + expiresIn * 1000);
                 res.cookie('jwt', token, { httpOnly: true, expires: expirationDate });
@@ -242,12 +250,15 @@ function authenticateToken(req, res, next) {
     // Xác thực token
     jwt.verify(token, secretKey, (err, user) => {
         if (err) {
-            return res.status(403).send('Forbidden: Invalid token');
+            return res.status(403).send('Forbidden: Invalid token')
+                .set('Location', '/login') // Đặt tiêu đề Location cho chuyển hướng
+                .send('Forbidden: Invalid token');
         }
         req.user = user; // Lưu thông tin user vào đối tượng req để sử dụng sau này
         next(); // Tiếp tục xử lý yêu cầu nếu token hợp lệ
     });
 }
+
 function decryptData(encryptedData, secretKey, iv) {
     const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(secretKey), Buffer.from(iv));
     let decryptedData = decipher.update(encryptedData, 'hex', 'utf8');
@@ -418,6 +429,88 @@ app.get('/getCars', (req, res, next) => {
     }
 
 })
+app.post('/getCommentByidCar', (req, res, next) => {
+    const carId = req.body.id_car; // Lấy ID của xe từ yêu cầu
+
+    // Thực hiện truy vấn để lấy thông tin bình luận từ cơ sở dữ liệu
+    con.query(
+        `SELECT
+            comment.id_comment,
+            users.ten AS user_ten,
+            comment.noidung,
+            comment.like_status,
+            comment.created_at AS comment_created_at,
+            comment.images
+        FROM
+            comment
+        LEFT JOIN
+            users ON users.id_user = comment.id_user
+        WHERE
+            comment.id_car = '${carId}';`,
+
+        (err, result) => {
+            if (err) {
+                console.error('Error fetching comment data from database:', err);
+                res.status(500).send('Internal server error');
+                return;
+            }
+
+            // Kiểm tra xem có dữ liệu bình luận hay không
+            if (result.length > 0) {
+                // Gửi phản hồi với dữ liệu bình luận và hình ảnh nếu có
+                res.status(200).json(result);
+            } else {
+                // Nếu không có kết quả, trả về một phản hồi trống hoặc một thông báo lỗi
+                res.status(404).json({ message: 'Không có dữ liệu bình luận cho xe này' });
+            }
+        }
+    );
+});
+
+
+// app.post('/getCommentByidCar', (req, res, next) => {
+//     const carId = req.body.id_car; // Lấy ID của người dùng từ token
+//     // Thực hiện truy vấn để lấy thông tin người dùng từ cơ sở dữ liệu
+//     con.query(
+//         `SELECT
+//         comment.id_comment,
+//         users.ten AS user_ten,
+//         comment.noidung,
+//         comment.like_status,
+//         comment.created_at AS comment_created_at
+//     FROM
+//         comment
+//     LEFT JOIN
+//         users ON users.id_user = comment.id_user
+//     LEFT JOIN
+//         car ON car.id_car = comment.id_car
+//     WHERE
+//         comment.id_car = '${carId}';`,
+
+//         (err, result) => {
+//             if (err) {
+//                 console.error('Error fetching user data from database:', err);
+//                 res.status(500).send('Internal server error');
+//                 return;
+//             }
+
+//             // Kiểm tra xem có dữ liệu người dùng hay không
+//             if (result.length > 0) {
+//                 let fullResult = [];
+//                 for (let i = 0; i < result.length; i++) {
+//                     fullResult.push({ message: 'thành công', arrComments: result[i] });
+//                 }
+//                 // Gửi phản hồi với mảng đầy đủ của kết quả
+//                 res.writeHead(200, { 'Content-Type': 'application/json' });
+//                 res.end(JSON.stringify(fullResult));
+//             } else {
+//                 // Nếu không có kết quả, trả về một phản hồi trống hoặc một thông báo lỗi
+//                 res.writeHead(404, { 'Content-Type': 'application/json' });
+//                 res.end(JSON.stringify({ message: 'Không có kết quả lay du lieu mess cua user' }));
+//             }
+//         }
+//     );
+// });
 app.get('/getCarsInfo', (req, res, next) => {
     try {
         con.query(
@@ -481,8 +574,9 @@ app.post('/getCarByid', (req, res, next) => {
     );
 });
 
-app.post('/addCars', upload.array('images', 7), (req, res, next) => {
-    const { id_user, carname, automaker, price, description, active } = req.body;
+app.post('/addCars', authenticateToken, upload.array('images', 7), (req, res) => {
+    const userId = req.user.id;
+    const { carname, automaker, price, description, active } = req.body;
 
     // Lấy danh sách các tệp đã tải lên
     const images = req.files;
@@ -492,12 +586,56 @@ app.post('/addCars', upload.array('images', 7), (req, res, next) => {
                  VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`;
 
     // Thêm các tệp đã tải lên vào câu lệnh SQL
-    const values = [id_user, carname, automaker, price, description, active, currentTimeVietnam];
+    const values = [userId, carname, automaker, price, description, active, currentTimeVietnam];
     for (let i = 0; i < images.length && i < 7; i++) {
         values.push(images[i].path); // Thêm đường dẫn của tệp vào mảng values
     }
 
     // Thực thi câu lệnh INSERT
+    con.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Error inserting data into MySQL:', err);
+            res.status(500).send('Internal server error');
+        } else {
+            console.log('Data inserted successfully into MySQL');
+            res.status(200).send('true');
+        }
+    });
+});
+// app.post('/addComments', authenticateToken, async (req, res) => {
+//     const userId = req.user.id;
+//     const { id_car, noidung, like_status } = req.body;
+//     const currentTimeVietnam = momentZone().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss');
+
+//     // Tạo câu lệnh INSERT
+//     const sql = `INSERT INTO comment (id_comment,id_car, id_user, noidung, like_status, created_at) 
+//              VALUES (UUID(), ?,?, ?, ?, ?)`;
+
+//     const values = [id_car, userId, noidung, like_status, currentTimeVietnam];
+
+//     // Thực thi câu lệnh INSERT
+//     try {
+//         const result = await con.query(sql, values);
+//         console.log('Data inserted successfully into PostgreSQL');
+//         res.status(200).send('true');
+//     } catch (err) {
+//         console.error('Error inserting data into PostgreSQL:', err);
+//         res.status(500).send('Internal server error');
+//     }
+// });
+app.post('/addComments', authenticateToken, uploadImagesComment.array('images'), async (req, res) => {
+    const { id_car, noidung, like_status } = req.body;
+    const userId = req.user.id;
+    const images = req.files;
+    const currentTimeVietnam = momentZone().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss');
+    const imageFiles = images.map(image => ({
+        filename: image.filename,
+        path: image.path
+    }));
+    const imagesJson = JSON.stringify(imageFiles);
+    const sql = `INSERT INTO comment (id_comment, id_car, id_user, noidung, like_status, created_at, images)
+                            VALUES (UUID(), ?, ?, ?, ?, ?, ?)`;
+    const values = [id_car, userId, noidung, like_status, currentTimeVietnam, imagesJson];
     con.query(sql, values, (err, result) => {
         if (err) {
             console.error('Error inserting data into MySQL:', err);
@@ -530,5 +668,5 @@ app.post('/addCars', upload.array('images', 7), (req, res, next) => {
 const port = 3000; // Thay thế 4000 bằng cổng mong muốn
 
 http.listen(port, () => {
-    console.log('listening on *:3000');
+    console.log('listening on *:' + port);
 });

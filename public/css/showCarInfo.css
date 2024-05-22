@@ -15,17 +15,15 @@ body {
 }
 
 .container-wrapper {
+    margin-top: 100px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    /* Để canh các phần tử trên cùng một hàng */
     gap: 10px;
-    /* Khoảng cách giữa container và comment-form */
 }
 
 .container {
     width: 60%;
-    /* Chiều rộng của container */
     max-width: 1200px;
     background-color: #fff;
     border-radius: 10px;
@@ -33,6 +31,7 @@ body {
     overflow: hidden;
     border: 2px solid #FFA500;
     margin-top: 100px;
+    position: relative;
 }
 
 .car-card {
@@ -99,10 +98,6 @@ body {
     cursor: pointer;
 }
 
-.container {
-    position: relative;
-}
-
 .like-dislike-container {
     position: absolute;
     bottom: 10px;
@@ -134,11 +129,8 @@ body {
 /* Styles cho comment-form */
 .comment-form {
     flex: 1;
-    max-width: 300px;
-    max-height: 1200px;
-
+    max-width: 600px;
     height: 100%;
-    /* Chiều cao bằng container */
     background-color: #fff;
     border: 2px solid #FFA500;
     border-radius: 10px;
@@ -158,16 +150,24 @@ body {
     overflow-y: auto;
     margin-bottom: 10px;
     border-bottom: 1px solid #FFA500;
-    max-height: 900px;
+    max-height: 770px;
+}
 
+.form_user_comment {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 900px;
 }
 
 textarea {
-    width: 100%;
+    max-width: 100%;
     height: 60px;
-    margin-bottom: 10px;
-    resize: none;
+    /* margin-bottom: 10px;
+    margin-top: 10px; */
+    resize: auto;
 }
+
 
 button {
     align-self: flex-end;
@@ -175,5 +175,145 @@ button {
     background-color: #007bff;
     color: white;
     border: none;
+    cursor: pointer;
+}
+
+.comment-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.comment-item {
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.comment-item p {
+    margin: 0;
+}
+
+.comment-item p strong {
+    color: #333;
+}
+
+/* CSS cho các phần tử li */
+li {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+/* CSS cho thẻ p chứa thời gian */
+li p.time {
+    font-size: small;
+    font-style: italic;
+}
+
+/* CSS cho phần tử strong trong thẻ p */
+li p strong {
+    color: #1e90ff;
+    font-weight: bold;
+}
+
+.img-container {
+    display: inline-block;
+    position: relative;
+    margin: 5px;
+}
+
+.preview-image {
+    width: 40px;
+    /* Cố định chiều rộng */
+    height: 40px;
+    /* Cố định chiều cao */
+    object-fit: cover;
+    /* Đảm bảo hình ảnh giữ tỷ lệ và lấp đầy khung */
+    border: 1px solid #ddd;
+    /* Tùy chọn: thêm viền để phân biệt */
+    border-radius: 4px;
+    object-fit: contain;
+    /* Tùy chọn: bo góc */
+}
+
+.remove-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(255, 0, 0, 0.7);
+    /* Nền đỏ mờ */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 2px 6px;
+    /* Kích thước nút nhỏ hơn */
+    font-size: 10px;
+    /* Cỡ chữ nhỏ hơn */
+    line-height: 12px;
+    /* Chiều cao dòng */
+}
+
+.enlarged-image-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+}
+
+.enlarged-image {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.comment-image {
+    max-width: 10%;
+    /* Đặt chiều rộng tối đa là 10% của kích thước gốc */
+    height: auto;
+    /* Giữ tỷ lệ khung hình khi thay đổi kích thước */
+    display: block;
+    /* Đảm bảo ảnh được hiển thị một dòng */
+    margin-bottom: 10px;
+    /* Thêm khoảng cách giữa các ảnh */
+    border: 1px solid #0c0b0b;
+    cursor: pointer;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+}
+
+.modal-image {
+  width: 1000px;
+  height: 1000px;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: rgb(235, 13, 13);
+    font-size: 24px;
     cursor: pointer;
 }

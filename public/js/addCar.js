@@ -191,7 +191,7 @@ function submitForm() {
 
     // Tạo FormData và thêm các trường dữ liệu
     const formData = new FormData();
-    formData.append('id_user', '5323175a-0dd7-11ef-be51-b42e997fc79f');
+    // formData.append('id_user', 'a5a9c3b7-1747-11ef-85ae-b42e997fc79f');
     formData.append('carname', carnameInput);
     formData.append('automaker', automakerInput);
     formData.append('price', priceInput);
@@ -206,10 +206,18 @@ function submitForm() {
     // Gửi yêu cầu POST đến server
     fetch('/addCars', {
         method: 'POST',
-        body: formData // FormData tự động thiết lập headers
+        body: formData,
+        credentials: 'include'// FormData tự động thiết lập headers
     })
         .then(response => {
             if (!response.ok) {
+                const confirmResult = confirm("Bạn cần đăng nhập để tiếp tục. Bạn có muốn chuyển đến trang đăng nhập không?");
+                if (confirmResult === true) {
+                    // Nếu người dùng chọn Yes, chuyển đến trang đăng nhập
+                    window.open('/login', '_blank');
+                } else {
+
+                }
                 throw new Error('Network response was not ok');
             }
             return response.json();
@@ -217,8 +225,9 @@ function submitForm() {
         .then(data => {
             console.log(data);
 
-            if (data.trim() === 'true') { // Kiểm tra nội dung của phản hồi
-
+            if (data = true) { // Kiểm tra nội dung của phản hồi
+                showAlert('Xe của bạn đã được hiển thị');
+                resetForm();
             } else {
                 throw new Error('Unexpected response from server');
             }
@@ -229,8 +238,7 @@ function submitForm() {
             console.error('There was a problem with your fetch operation:', error);
             // Xử lý lỗi
         });
-    showAlert('Xe của bạn đã được hiển thị');
-    resetForm();
+
 }
 function resetForm() {
     // Reset các trường input và textarea
