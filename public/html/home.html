@@ -1,29 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Collection</title>
     <link rel="stylesheet" href="/public/css/home.css">
-    <script  src="/public/js/home.js"></script>
+    <script src="/public/js/home.js"></script>
 </head>
-
 <body>
-    <div class="top-container"></div>
+    <div class="top-container">
+        <div class="user-info">
+            <img src="avatar.jpg" alt="Avatar" class="avatar">
+            <span class="username">Tên Người Dùng</span>
+        </div>
+        <div class="search-bar">
+            <input type="text" class="inputtext" placeholder="Tìm kiếm...">
+            <button class="btnSearch">Search</button>
+            <div class="menu-select">
+                <select id="select" name="select">
+                    <option value="">Lọc</option>
+                </select><br>
+            </div>
+            <div class="menu-select-hangxe">
+                <select id="select-hangxe" name="select-hangxe">
+                    <option value="">Hãng Xe</option>
+                </select><br>
+            </div>
+        </div>
+    </div>
     <div class="container" id="carCollection">
         <!-- Các chiếc xe sẽ được thêm vào đây bằng JavaScript -->
     </div>
-
     <div class="bottom-container">
         <div id="pagination" class="pagination">
-            <button id="prevButton">Previous</button>
+            <!-- <button id="prevButton">Previous</button>
             <!-- Các nút phân trang sẽ được thêm vào đây bằng JavaScript -->
-            <button id="nextButton">Next</button>
+            <!-- <button id="nextButton">Next</button> --> -->
         </div>
     </div>
-
-
 </body>
-
 </html>

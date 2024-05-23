@@ -182,7 +182,13 @@ function submitForm() {
         showAlert('Please fill in all fields and select at least one image.')
         return;
     }
+    const priceWithoutComma = priceInput.replace(/,/g, '');
 
+    // Chuyển đổi thành số
+    const priceNumber = parseFloat(priceWithoutComma);
+
+    // Làm tròn đến hai chữ số sau dấu thập phân và chuyển thành chuỗi
+    const formattedPrice = priceNumber.toFixed(2);
     // Kiểm tra số lượng ảnh đã chọn
     if (selectedImages.length !== 7) {
         showAlert('Bạn phải tải lên đúng 7 ảnh.')
@@ -194,7 +200,7 @@ function submitForm() {
     // formData.append('id_user', 'a5a9c3b7-1747-11ef-85ae-b42e997fc79f');
     formData.append('carname', carnameInput);
     formData.append('automaker', automakerInput);
-    formData.append('price', priceInput);
+    formData.append('price', formattedPrice);
     formData.append('description', descriptionInput);
 
     // Thêm từng tệp ảnh vào FormData
@@ -227,7 +233,7 @@ function submitForm() {
 
             if (data = true) { // Kiểm tra nội dung của phản hồi
                 showAlert('Xe của bạn đã được hiển thị');
-                resetForm();
+                // resetForm();
             } else {
                 throw new Error('Unexpected response from server');
             }
@@ -246,7 +252,7 @@ function resetForm() {
     document.getElementById('automaker').value = '';
     document.getElementById('price').value = '';
     document.getElementById('description').value = '';
-
+    document.getElementById('priceInWords').value = '';
     // Xóa hình ảnh được chọn và cập nhật imageCount
     selectedImages = [];
     imageContainer.innerHTML = '';

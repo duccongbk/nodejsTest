@@ -1,30 +1,86 @@
 .top-container {
-    /* margin-bottom: 20px; */
-    background-color: #007bff;
-    /* Khoảng cách giữa top-container và bottom-container */
+    width: 100%;
+    height: 200px;
+    background-color: #ff7f00;
+    /* Màu cam */
+    padding: 10px;
+    /* Thêm padding để tạo khoảng trắng xung quanh nội dung */
+    max-width: 100%;
+    max-height: 500px;
+    position: relative;
+    /* Đặt position là relative để có thể điều chỉnh vị trí của các phần tử con */
+}
+
+.user-info {
+    width: 100px;
+    height: 100px;
+    border: 5px solid #3fee1c;
+    padding: 10px;
+    cursor: pointer;
+    position: absolute;
+    /* Đặt position là absolute để có thể điều chỉnh vị trí */
+    top: 10px;
+    /* Đặt top là 10px để nằm gần phía trên */
+    right: 10px;
+    /* Đặt right là 10px để nằm gần phía bên phải */
+}
+
+.avatar {
+    border-radius: 50%;
+}
+
+.search-bar {
+    /* background-color: #fff; */
+    align-items: flex-end;
+    display: flex;
+    /* border: 5px solid #3fee1c; */
+     width: 1500px;
+    height: 20px;
+    position: absolute;
+    /* Đặt position là absolute để có thể điều chỉnh vị trí */
+    bottom: 10px;
+    /* Đặt bottom là 10px để nằm gần phía dưới */
+    right: 200px;
+    /* Đặt right là 10px để nằm gần phía bên phải */
+}
+
+.inputtext {
+    width: 30%;
+}
+
+.btnSearch , .menu-select-hangxe   {
+    margin-left: 10px;
+    
+}
+
+.menu-select {
+    /* border: 1px solid #3fee1c;
+    background-color: bisque; */
+    margin-left: 10px;
+    height: 100%;
 }
 
 .bottom-container {
+    background-color: #ff7f00;
+    /* Màu cam */
+    padding: 10px;
     display: flex;
     justify-content: center;
-    /* Canh giữa theo chiều ngang */
     align-items: center;
-    /* Canh giữa theo chiều dọc */
 }
 
 .container {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    margin: 200px 200px auto; 
-    /* margin-top: 200px; */
-    /* Để canh giữa */
-    max-width: 1200px;
+    gap: 5px;
+    margin: 10px auto;
+    /* Canh giữa theo chiều ngang */
+    max-width: 1500px;
     /* Độ rộng tối đa của container */
 }
 
 .car {
-    border: 10px solid #ccc;
+    border: 5px solid #c99861;
     padding: 10px;
     cursor: pointer;
     /* Thêm con trỏ nhấp vào */
@@ -42,12 +98,9 @@
 
 .pagination {
     margin-top: 20px;
-    /* Khoảng cách giữa container và phân trang */
     display: flex;
     justify-content: center;
-    /* Canh giữa theo chiều ngang */
     align-items: center;
-    /* Canh giữa theo chiều dọc */
 }
 
 .pagination button {
@@ -57,20 +110,21 @@
 
 .active-page {
     background-color: #007bff;
+    /* Màu xanh */
     color: #fff;
+    /* Màu chữ trắng */
 }
 
 h3 {
     color: blue;
-    /* Màu chữ của các phần tử h3 sẽ là màu xanh */
+    /* Màu xanh */
+    justify-content: center;
+
 }
 
 p {
     color: red;
-    /* Màu chữ của các phần tử p sẽ là màu đỏ */
-}
+    /* Màu đỏ */
+    justify-content: center;
 
-.image-size {
-    width: 200px !important;
-    height: 150px !important;
 }
