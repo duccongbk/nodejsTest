@@ -133,6 +133,24 @@ app.put('/updateUser', (req, res, next) => {
         }
     );
 });
+app.put('/updateCar', (req, res, next) => {
+    const { id_car, active } = req.body;
+
+    // Thực hiện câu lệnh update trong cơ sở dữ liệu
+    con.query(
+        `UPDATE car SET active = ? WHERE id_car = ?`,
+        [active, id_car],
+        (err, result) => {
+            if (err) {
+                console.error('Error updating user data in MySQL:', err);
+                res.status(500).send('Internal server error');
+            } else {
+                console.log('User data updated successfully in MySQL');
+                res.status(200).send('true');
+            }
+        }
+    );
+});
 app.delete('/deleteUser', (req, res, next) => {
     const id_user = req.body.id_user;
 
@@ -140,6 +158,24 @@ app.delete('/deleteUser', (req, res, next) => {
     con.query(
         `DELETE FROM users WHERE id_user = ?`,
         [id_user],
+        (err, result) => {
+            if (err) {
+                console.error('Error deleting user data in MySQL:', err);
+                res.status(500).send('Internal server error');
+            } else {
+                console.log('User data deleted successfully in MySQL');
+                res.status(200).send('true');
+            }
+        }
+    );
+});
+app.delete('/deleteCar', (req, res, next) => {
+    const id_car = req.body.id_car;
+
+    // Thực hiện câu lệnh xóa trong cơ sở dữ liệu
+    con.query(
+        `DELETE FROM car WHERE id_car = ?`,
+        [id_car],
         (err, result) => {
             if (err) {
                 console.error('Error deleting user data in MySQL:', err);
@@ -396,7 +432,7 @@ app.get('/getCars', (req, res, next) => {
     try {
         con.query(
 
-            `SELECT * FROM car;
+            `SELECT * FROM car where active = 'active';
             `,
             function (err, result, fields) {
                 if (err) {

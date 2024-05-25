@@ -1,57 +1,65 @@
-document.addEventListener('DOMContentLoaded', function () {
+// document.addEventListener('DOMContentLoaded', function () {
 
-    const userProfile = document.getElementById('user-profile');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-    const dropdownMenuUser = document.getElementById('dropdown-menu-Users');
-    const dropdownMenuProducts = document.getElementById('dropdown-menu-Products');
-    userProfile.addEventListener('click', function () {
-        dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
-    });
+const userProfile = document.getElementById('user-profile');
+const dropdownMenu = document.getElementById('dropdown-menu');
+const dropdownMenuUser = document.getElementById('dropdown-menu-Users');
+const dropdownMenuProducts = document.getElementById('dropdown-menu-Products');
+let dataArr = [];
+let choosen = null;
+userProfile.addEventListener('click', function () {
+    dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
+});
 
-    document.getElementById("Users").addEventListener("click", function () {
-        if (dropdownMenuUser.style.display === "none") {
-            dropdownMenuUser.style.display = "block";
-        } else {
-            dropdownMenuUser.style.display = "none";
-        }
-    });
-    document.getElementById("Products").addEventListener("click", function () {
-        if (dropdownMenuProducts.style.display === "none") {
-            dropdownMenuProducts.style.display = "block";
-        } else {
-            dropdownMenuProducts.style.display = "none";
-        }
-    });
+document.getElementById("Users").addEventListener("click", function () {
+    if (dropdownMenuUser.style.display === "none") {
+        dropdownMenuUser.style.display = "block";
+    } else {
+        dropdownMenuUser.style.display = "none";
+    }
+});
+document.getElementById("Products").addEventListener("click", function () {
+    if (dropdownMenuProducts.style.display === "none") {
+        dropdownMenuProducts.style.display = "block";
+    } else {
+        dropdownMenuProducts.style.display = "none";
+    }
+});
 
-    document.getElementById('Show-btn1').addEventListener('click', function () {
-        const userTable = document.getElementById('userTable');
-        userTable.style.display = 'table';
-        ShowUsers();
-    });
-    document.getElementById('Show-btn-Products').addEventListener('click', function () {
-        const userTable = document.getElementById('userTable');
-        userTable.style.display = 'table';
-        ShowCars();
-
-    });
-    document.getElementById('btn-reload').addEventListener('click', function () {
-        event.preventDefault();
-        ShowUsers();
-    });
-    document.getElementById('searchInput').addEventListener('keypress', function (event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Ngăn chặn hành động mặc định của phím Enter
-            const username = document.getElementById('searchInput').value;
-            searchUser(username);
-        }
-    });
-
-    document.getElementById('btn-search').addEventListener('click', function () {
-        const username = document.getElementById('searchInput').value;
-        searchUser(username);
-    });
+document.getElementById('Show-btn1').addEventListener('click', function () {
+    choosen = 'Users';
+    const userTable = document.getElementById('userTable');
+    userTable.style.display = 'table';
+    ShowUsers();
+});
+document.getElementById('Show-btn-Products').addEventListener('click', function () {
+    choosen = 'Cars';
+    const userTable = document.getElementById('userTable');
+    userTable.style.display = 'table';
+    ShowCars();
 
 });
+document.getElementById('btn-reload').addEventListener('click', function () {
+    event.preventDefault();
+    reloadData();
+});
+// document.getElementById('btn-delete-car').addEventListener('click', function () {
+//     event.preventDefault();
+//     deleteCar();
+// });
+document.getElementById('searchInput').addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Ngăn chặn hành động mặc định của phím Enter
+        const username = document.getElementById('searchInput').value;
+        searchInfo(username, dataArr);
+    }
+});
+
+document.getElementById('btn-search').addEventListener('click', function () {
+    const username = document.getElementById('searchInput').value;
+    searchInfo(username, dataArr);
+});
+
+
 
 function ShowUsers() {
     // const userTableBody = document.getElementById('userTableBody');
@@ -74,8 +82,9 @@ function ShowUsers() {
 
             // showUserOnTable(data);
             // showUserOnTable(data);
-            createPagination(data, 10, "Users");
-            displayPage(data, 1, 10, "Users");
+            dataArr = data.slice();
+            createPagination(data, 10, choosen);
+            displayPage(data, 1, 10, choosen);
         })
         .catch(error => {
             console.error('Đã xảy ra lỗi:', error);
@@ -96,91 +105,59 @@ function ShowCars() {
             }
         })
         .then(data => {
-            createPagination(data, 10, "Cars");
-            displayPage(data, 1, 10, "Cars");
+            dataArr = data.slice();
+            createPagination(data, 10, choosen);
+            displayPage(data, 1, 10, choosen);
         })
         .catch(error => {
             console.error('Đã xảy ra lỗi:', error);
         });
 }
 
-function editUserOrCar(id_user_car, choosen) {
-    if (choosen === 'User') {
-        window.open(`/editUser_Car?id_user=${id_user_car}&choosen=${choosen}`, '_blank');
-    } else if (choosen === 'Car') {
-        window.open(`/editUser_Car?id_car=${id_user_car}&choosen=${choosen}`, '_blank');
-    } else {
-        // Xử lý trường hợp khác nếu cần
-        console.error('Invalid option provided');
+function reloadData() {
+    switch (choosen) {
+        case 'Cars':
+            ShowCars();
+            break;
+        case 'Users':
+            ShowUsers();
+            break;
+        default:
+            console.log('I have no preference.');
     }
 }
-
-
-function deleteUserOrCar(id_user) {
-    // Hiển thị hộp thoại xác nhận
-    const isConfirmed = confirm("Bạn có chắc chắn muốn xóa người dùng này?");
-
-    // Kiểm tra xem người dùng đã xác nhận hoặc không
-    if (isConfirmed) {
-        // Tạo đối tượng chứa dữ liệu cần gửi
-
-
-        // Gửi yêu cầu DELETE đến endpoint '/deleteUser' trên máy chủ
-        fetch('/deleteUser', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-                id_user: id_user,
-            })
-        })
-            .then(response => {
-                if (response.ok) {
-                    alert('User data deleted successfully');
-                    ShowUsers();
-
-                    // Thực hiện các hành động cần thiết khi xóa thành công (nếu có)
-                } else {
-                    alert('Failed to delete user data:', response.statusText);
-                    // Xử lý khi có lỗi xảy ra
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting user data:', error);
-                // Xử lý khi có lỗi xảy ra
-            });
-    } else {
-        // Hủy thực hiện xóa
-        // alert("Người dùng đã hủy xóa");
-    }
-}
-
-function searchUser(username) {
+function searchInfo(keyword, data) {
     document.getElementById('searchInput').value = '';
-    fetch('/searchUsers', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+    switch (choosen) {
+        case 'Cars':
+            const searchData = data.filter(item => {
+                // Lọc các người dùng có tên chứa từ khóa tìm kiếm
+                return item.arrCars.user_ten.toLowerCase().includes(keyword.toLowerCase());
+            });
 
-        body: new URLSearchParams({
-            username: username,
-        })
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to search users');
-            }
-            return response.json();
-        })
-        .then(data => {
-            createPagination(data, 10, "Users");
-            displayPage(data, 1, 10, "Users");
-        })
-        .catch(error => {
-            console.error('Lỗi:', error);
-        });
+            createPagination(searchData, 10, choosen);
+            displayPage(searchData, 1, 10, choosen);
+            break;
+        case 'Users':
+            const searchData2 = data.filter(item => {
+                // Lọc các người dùng có tên chứa từ khóa tìm kiếm
+                return item.arrusers.ten.toLowerCase().includes(keyword.toLowerCase());
+            });
+
+            createPagination(searchData2, 10, choosen);
+            displayPage(searchData2, 1, 10, choosen);
+            break;
+        default:
+            console.log('I have no preference.');
+    }
+
+    const searchData = data.filter(item => {
+        // Lọc các người dùng có tên chứa từ khóa tìm kiếm
+        return item.arrCars.user_ten.toLowerCase().includes(keyword.toLowerCase());
+    });
+
+    createPagination(searchData, 10, "Cars");
+    displayPage(searchData, 1, 10, "Cars");
 }
 function convertTime(timezone) {
     const originalTime = new Date(timezone);
@@ -307,10 +284,10 @@ function displayPage(data, pageNumber, itemsPerPage, choosen) {
                         <td>${item.arrusers.diachi}</td>
                         <td>${convertTime(item.arrusers.created_at)}</td>
                         <td>
-                            <button class="btn" onclick="editUserOrCar('${item.arrusers.id_user.toString()}','User')"><img src="edit_icon.png" alt="Sửa"></button>
+                            <button class="btn" onclick="editUser('${item.arrusers.id_user.toString()}')"><img src="edit_icon.png" alt="Sửa"></button>
                         </td>
                         <td> 
-                            <button class="btn-click" onclick="deleteUserOrCar('${item.arrusers.id_user.toString()}','User')"><img src="delete_icon.png" alt="Xóa"></button>
+                            <button class="btn-click" onclick="deleteUser('${item.arrusers.id_user.toString()}')"><img src="delete_icon.png" alt="Xóa"></button>
                         </td>
                     `;
                     userTableBody.appendChild(row);
@@ -337,16 +314,18 @@ function displayPage(data, pageNumber, itemsPerPage, choosen) {
                         <td>${item.arrCars.price}</td>
                         <td>${convertTime(item.arrCars.car_created_at)}</td>   
                         <td>
-                      <select id="activeDropdown" class="activeDropdown">
+                      <select id="activeDropdown" class="activeDropdown" onchange="editUserCar('${item.arrCars.id_car.toString()}', this.value)">
                       <option value="active" ${item.arrCars.active === 'active' ? 'selected' : ''} style="color: green;">Active</option>
                       <option value="inactive" ${item.arrCars.active === 'inactive' ? 'selected' : ''} style="color: red;">Inactive</option>
+                      <option value="null" ${item.arrCars.active === 'null' ? 'selected' : ''} style="color: red;">Null</option>
+                      <option value="block" ${item.arrCars.active === 'block' ? 'selected' : ''} style="color: red;">Block</option>
                       </select>
                         </td>
                         <td>
-                            <button class="btn" onclick="editUserOrCar('${item.arrCars.id_car.toString()}','Car')"><img src="edit_icon.png" alt="Sửa"></button>
+                            <button class="btn" id="btn-edit-car" onclick="editUserCar('${item.arrCars.id_car.toString()}', this.value)"><img src="edit_icon.png" alt="Sửa"></button>
                         </td>
                         <td> 
-                            <button class="btn-click" onclick="deleteUserOrCar('${item.arrCars.id_car.toString()}','Car')"><img src="delete_icon.png" alt="Xóa"></button>
+                            <button class="btn-click" id="btn-delete-car" onclick="deleteCar('${item.arrCars.id_car.toString()}')"><img src="delete_icon.png" alt="Xóa"></button>
                         </td>
                     `;
                     userTableBody.appendChild(row);
@@ -361,5 +340,140 @@ function displayPage(data, pageNumber, itemsPerPage, choosen) {
 
     } else {
         alert("Không có dữ liệu để hiển thị");
+    }
+}
+
+// });
+function deleteCar(id_car) {
+    // Hiển thị hộp thoại xác nhận
+    const isConfirmed = confirm("Bạn có chắc chắn muốn xóa người dùng này?");
+
+    // Kiểm tra xem người dùng đã xác nhận hoặc không
+    if (isConfirmed) {
+        // Tạo đối tượng chứa dữ liệu cần gửi
+
+
+        // Gửi yêu cầu DELETE đến endpoint '/deleteUser' trên máy chủ
+        fetch('/deleteCar', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                id_car: id_car,
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('User data deleted successfully');
+                    ShowCars();
+                    // refeshCar();
+                    // Thực hiện các hành động cần thiết khi xóa thành công (nếu có)
+                } else {
+                    alert('Failed to delete user data:', response.statusText);
+                    // Xử lý khi có lỗi xảy ra
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting user data:', error);
+                // Xử lý khi có lỗi xảy ra
+            });
+    } else {
+        // Hủy thực hiện xóa
+        // alert("Người dùng đã hủy xóa");
+    }
+}
+function refeshCar(choosen) {
+    choosen = "Cars"
+    fetch('/getCarsInfo', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Đăng nhập không thành công');
+            }
+        })
+        .then(data => {
+            dataArr = data.slice();
+            createPagination(data, 10, choosen);
+            displayPage(data, 1, 10, choosen);
+        })
+        .catch(error => {
+            console.error('Đã xảy ra lỗi:', error);
+        });
+}
+
+function editUser(id_user) {
+    window.open(`/editUser_Car?id_user=${id_user}`, '_blank');
+    console.error('Invalid option provided');
+}
+
+function editUserCar(id_car, option) {
+    fetch('/updateCar', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            id_car: id_car,
+            active: option,
+        })
+    })
+        .then(response => {
+            if (response.ok) {
+                alert('Car data updated successfully');
+                ShowCars();
+            } else {
+                alert('Failed to update user data:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating user data:', error);
+        });
+}
+
+
+function deleteUser(id_user) {
+    // Hiển thị hộp thoại xác nhận
+    const isConfirmed = confirm("Bạn có chắc chắn muốn xóa người dùng này?");
+
+    // Kiểm tra xem người dùng đã xác nhận hoặc không
+    if (isConfirmed) {
+        // Tạo đối tượng chứa dữ liệu cần gửi
+
+
+        // Gửi yêu cầu DELETE đến endpoint '/deleteUser' trên máy chủ
+        fetch('/deleteUser', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                id_user: id_user,
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('User data deleted successfully');
+                    ShowUsers();
+
+                    // Thực hiện các hành động cần thiết khi xóa thành công (nếu có)
+                } else {
+                    alert('Failed to delete user data:', response.statusText);
+                    // Xử lý khi có lỗi xảy ra
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting user data:', error);
+                // Xử lý khi có lỗi xảy ra
+            });
+    } else {
+        // Hủy thực hiện xóa
+        // alert("Người dùng đã hủy xóa");
     }
 }

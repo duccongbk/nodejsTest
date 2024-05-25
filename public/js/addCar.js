@@ -207,7 +207,7 @@ function submitForm() {
     selectedImages.forEach((file, index) => {
         formData.append('images', file); // Sử dụng tên trường 'images'
     });
-    formData.append('active', false);
+    formData.append('active', null);
 
     // Gửi yêu cầu POST đến server
     fetch('/addCars', {
