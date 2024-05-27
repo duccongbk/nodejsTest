@@ -132,11 +132,13 @@ document.addEventListener("DOMContentLoaded", function () {
             carElement.innerHTML = `
                 
                 <h3>${car.carname}</h3>
-                <p>Giá: ${formatCurrency(car.price)}</p>
-                <p>Hãng: ${car.automaker}</p>
+                <p class = "p-price">Giá: ${formatCurrencyToString(car.price) + " VNĐ"}</p>
+                <p class = "p-hang">Hãng: ${car.automaker}</p>
+                <p class = "p-time">Thời gian: ${getTimeDifference(car.created_at)}</p>
                 <img src="${car['image' + a]}" alt="${car.carname}" class="image-size"></img>
                 <!-- Thêm các hình ảnh khác tại đây -->
-                <button class="add-to-cart-btn">Thêm vào giỏ hàng</button>
+                <p class = "p-hang">Hãng: ${car.automaker}</p>
+                
             `;
             carElement.addEventListener('click', (event) => {
                 // Xử lý khi carElement được click
@@ -149,6 +151,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function formatCurrencyToString(amount) {
+        // Chia cho 1 tỷ để lấy phần tỷ
+        const billion = Math.floor(amount / 1000000000);
+        // Chia cho 1 triệu để lấy phần triệu
+        const million = Math.floor((amount % 1000000000) / 1000000);
+
+        // Xây dựng chuỗi kết quả
+        let result = "";
+        if (billion > 0) {
+            result += billion + " tỷ ";
+        }
+        if (million > 0) {
+            result += million + " triệu ";
+        }
+        return result.trim(); // Loại bỏ khoảng trắng ở đầu và cuối chuỗi
+    }
+
+    // Sử dụng hàm formatCurrency với số tiền 2,222,222,222
 
 
     // Function để tạo nút phân trang
@@ -281,4 +301,37 @@ function SelectHangxe() {
         newOption.text = option;
         SelectHangxe.appendChild(newOption);
     });
+}
+function getTimeDifference(timestamp) {
+    const commentTime = new Date(timestamp);
+    const currentTime = new Date();
+    const timeDiff = currentTime - commentTime;
+
+    const minutes = Math.floor(timeDiff / 1000 / 60);
+    if (minutes < 60) {
+        return `${minutes} phút trước`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+        return `${hours} giờ trước`;
+    }
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) {
+        return `${days} ngày trước`;
+    }
+
+    const weeks = Math.floor(days / 7);
+    if (weeks < 4) {
+        return `${weeks} tuần trước`;
+    }
+
+    const months = Math.floor(days / 30);
+    if (months < 12) {
+        return `${months} tháng trước`;
+    }
+
+    const years = Math.floor(months / 12);
+    return `${years} năm trước`;
 }

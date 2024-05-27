@@ -1,7 +1,14 @@
+
+
+// Load pre-trained model
+
+// Run the example
+// runExample();
+
 document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const idCar = urlParams.get('id_car');
-
+    const id_comment = null;
     await getCarsInfo(idCar);
     await getCommentByidCar(idCar);
 
@@ -9,7 +16,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         event.preventDefault();
         addComment(idCar);
     });
+    // document.querySelectorAll('.like-btn').forEach(button => {
+    //     button.addEventListener('click', (event) => {
+    //         event.preventDefault();
+    //         // Handle like action here
+    //     });
+    // });
 
+    // document.querySelectorAll('.dislike-btn').forEach(button => {
+    //     button.addEventListener('click', (event) => {
+    //         event.preventDefault();
+    //         // Handle dislike action here
+    //     });
+    // });
+
+    // document.querySelectorAll('.reply-submit-btn').forEach(button => {
+    //     button.addEventListener('click', (event) => {
+    //         event.preventDefault();
+
+    //         // Handle reply action here
+    //         alert(getIdComment());
+    //     });
+    // });
 });
 
 document.getElementById('uploadImageButton').addEventListener('click', () => {
@@ -206,20 +234,74 @@ function displayCars(carData) {
 
     carListContainer.appendChild(carElement);
 }
+async function insertReplycomment(id_comment, likecomment, noidung) {
+    try {
+        const response = await fetch('/insertReplycomment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                id_comment: id_comment,
+                likecomment: likecomment,
+                noidung: noidung
+            })
+        });
+
+        if (!response.ok) {
+            const confirmResult = confirm("Bạn cần đăng nhập để tiếp tục. Bạn có muốn chuyển đến trang đăng nhập không?");
+            if (confirmResult === true) {
+                window.open('/login', '_blank');
+            }
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log('Reply comment inserted successfully:', data);
+        alert("Reply comment inserted successfully");
+        const commentToUpdate = commentData.find(comment => comment.id === id_comment);
+
+        // Add the new reply to the replies array of the comment
+        commentToUpdate.replies.push(newReply);
+
+        // Call displayComments to render the updated commentData
+        // displayComments(commentData);
+        const commentContainer = document.getElementById('comment_User');
+        commentContainer.lastElementChild.scrollIntoView({ behavior: 'smooth' });
+
+        const inputElement = document.querySelector(`.reply-text[data-id="${id_comment}"]`);
+        if (inputElement) {
+            inputElement.value = ''; // Clear the input field
+        }
+        // Handle success response as needed
+    } catch (error) {
+        console.error('Error inserting reply comment:', error);
+        // Handle error as needed
+    }
+}
 
 function displayComments(commentdata) {
+    console.log(commentdata);
     const commentList = document.getElementById("comment_User").querySelector("ul");
     commentList.innerHTML = ''; // Clear previous comments
 
     commentdata.forEach(comment => {
         const li = document.createElement("li");
         li.innerHTML = `
-            <p><strong>${comment.user_ten}</strong>: ${comment.noidung}</p>
+            <p><strong>${comment.user_ten}</strong>: ${comment.comment_content}</p>
             <p class="time"> at: ${getTimeDifference(comment.comment_created_at)}</p>
+            <div class="comment-buttons">
+                <button class="like-btn">Like</button>
+                <button class="dislike-btn">Dislike</button>
+            </div>
+            <div class="reply-input" style="display: none;">
+                <input type="text" class="reply-text" name="replyText-${comment.id_comment}" placeholder="Enter your reply..."  data-id="${comment.id_comment}">
+                <button class="reply-submit-btn" onclick="handleReplySubmit('${comment.id_comment.toString()}')">Reply</button>
+            </div>
         `;
-
-        if (comment.images) {
-            const images = JSON.parse(comment.images);
+        // Thêm danh sách phản hồi vào bình luận hiện tại
+        if (comment.comment_images) {
+            const images = JSON.parse(comment.comment_images);
             images.forEach(image => {
                 const img = document.createElement('img');
                 img.src = image.path; // Use the path from the comment data
@@ -230,9 +312,53 @@ function displayComments(commentdata) {
                 li.appendChild(img);
             });
         }
+        const replyList = document.createElement("ul");
+        replyList.classList.add("reply-list");
+        comment.reply_comments.forEach(reply => {
+            if (reply.id_reply) {
+                const replyLi = document.createElement("li");
+                replyLi.innerHTML = `
+                <p><strong>${reply.reply_user_ten}</strong>: ${reply.reply_content}</p>
+                <p class="time"> at: ${getTimeDifference(reply.reply_created_at)}</p>
+                <div class="reply-buttons">
+                    <button class="like-btn">Like</button>
+                    <button class="dislike-btn">Dislike</button>
+                </div>`;
+                replyList.appendChild(replyLi);
+            }
+
+        });
+        li.appendChild(replyList);
+        li.addEventListener('mouseenter', (event) => {
+            event.preventDefault();
+            const replyInput = li.querySelector('.reply-input');
+            if (replyInput) {
+                replyInput.style.display = 'block';
+            }
+        });
+
+        // Add event listener to hide reply button when not hovered
+        li.addEventListener('mouseleave', (event) => {
+            event.preventDefault();
+            const replyInput = li.querySelector('.reply-input');
+            if (replyInput) {
+                replyInput.style.display = 'none';
+
+            }
+        });
 
         commentList.appendChild(li);
     });
+}
+
+function handleReplySubmit(commentId) {
+    const replyInput = document.querySelector(`.reply-text[data-id="${commentId}"]`);
+    if (replyInput) {
+        const replyText = replyInput.value;
+        insertReplycomment(commentId, null, replyText);
+    } else {
+        console.error('Reply input element not found');
+    }
 }
 
 // function toggleEnlargeImage(imageSrc) {
@@ -327,5 +453,49 @@ function enlargeImage(imageSrc) {
             modal.remove();
         }
     });
+}
+async function loadModel() {
+    const model = tf.sequential();
+    return model;
+}
+// Perform Super-Resolution
+async function tangChatluonganh(imagePath, model) {
+    // Read input image
+    const inputImage = await fetch(imagePath);
+    const blob = await inputImage.blob();
+    const file = new File([blob], "filename");
+
+    // Preprocess input image (convert to tensor, normalize, etc.)
+    const inputTensor = tf.node.decodeImage(await file.arrayBuffer());
+
+    // Perform super-resolution inference
+    const outputTensor = model.predict(inputTensor);
+
+    // Convert output tensor to image buffer
+    const outputImageBuffer = await tf.node.encodeJpeg(outputTensor);
+
+    return outputImageBuffer;
+}
+
+// Example usage
+async function runExample(inputImagePath) {
+    // Load pre-trained model
+    const model = await loadModel();
+
+    // Define function to increase image quality
+    tangChatluonganh = async (imagePath) => {
+        const outputImageBuffer = await superResolution(imagePath, model);
+        return outputImageBuffer;
+    };
+
+    // Use the function to increase quality of an image
+    // const inputImagePath = 'path/to/input/image.jpg';
+    const newImageBuffer = await tangChatluonganh(inputImagePath);
+
+    // Save the new image
+    // fs.writeFileSync('path/to/output/newimage.jpg', newImageBuffer);
+
+    // console.log('Image quality enhancement completed.');
+    return newImageBuffer;
 }
 

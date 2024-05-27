@@ -34,7 +34,7 @@
     align-items: flex-end;
     display: flex;
     /* border: 5px solid #3fee1c; */
-     width: 1500px;
+    width: 1500px;
     height: 20px;
     position: absolute;
     /* Đặt position là absolute để có thể điều chỉnh vị trí */
@@ -48,9 +48,10 @@
     width: 30%;
 }
 
-.btnSearch , .menu-select-hangxe   {
+.btnSearch,
+.menu-select-hangxe {
     margin-left: 10px;
-    
+
 }
 
 .menu-select {
@@ -80,10 +81,13 @@
 }
 
 .car {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     border: 5px solid #c99861;
     padding: 10px;
     cursor: pointer;
-    /* Thêm con trỏ nhấp vào */
 }
 
 .car img {
@@ -108,6 +112,20 @@
     /* Khoảng cách giữa các nút */
 }
 
+.p-price {
+    color: #f30f66;
+    font-weight: bold;
+
+}
+
+.p-hang {
+    color: #007bff;
+    /* Màu chữ */
+    font-weight: bold;
+    text-decoration: underline;
+    /* Độ đậm của chữ */
+}
+
 .active-page {
     background-color: #007bff;
     /* Màu xanh */
@@ -119,7 +137,7 @@ h3 {
     color: blue;
     /* Màu xanh */
     justify-content: center;
-
+    align-items: center;
 }
 
 p {

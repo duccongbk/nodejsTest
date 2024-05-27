@@ -305,8 +305,9 @@ li p strong {
 }
 
 .modal-image {
-  width: 1000px;
-  height: 1000px;
+    background-size: cover;
+    width: 1200px;
+    height: 1200px;
 }
 
 .close {
@@ -316,4 +317,77 @@ li p strong {
     color: rgb(235, 13, 13);
     font-size: 24px;
     cursor: pointer;
+}
+
+.comment-buttons {
+    margin-top: 5px;
+}
+
+.comment-buttons button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+    font-size: 8px;
+}
+
+.comment-buttons button:last-child {
+    background-color: #28a745;
+}
+
+.reply-input {
+    display: none;
+    /* border: 2px solid #FFA500; */
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.reply-input input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #FFA500;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.reply-input button {
+    background-color: #FFA500;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.reply-input button:hover {
+    background-color: #FF8200;
+}
+
+.reply-list {
+    /* Đặt khoảng cách lề trái cho toàn bộ danh sách phản hồi */
+    padding-left: 20px;
+}
+
+.reply-list li {
+    /* Áp dụng lề cho mỗi phản hồi */
+    padding-left: 20px;
+}
+
+.reply-list li p {
+    /* Tùy chỉnh lề cho phần nội dung của mỗi phản hồi */
+    margin: 0;
+    /* Loại bỏ lề xung quanh nội dung */
+}
+.reply-list li button {
+    /* Tùy chỉnh lề cho phần nội dung của mỗi phản hồi */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+    font-size: 8px;
 }

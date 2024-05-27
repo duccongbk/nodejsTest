@@ -473,16 +473,31 @@ app.post('/getCommentByidCar', (req, res, next) => {
         `SELECT
             comment.id_comment,
             users.ten AS user_ten,
-            comment.noidung,
-            comment.like_status,
+            comment.noidung AS comment_content,
+            comment.like_status AS comment_like_status,
             comment.created_at AS comment_created_at,
-            comment.images
+            comment.images AS comment_images,
+            GROUP_CONCAT(
+                JSON_OBJECT(
+                    'id_reply', replycomment.id_reply,
+                    'reply_user_ten', users_reply.ten,
+                    'reply_content', replycomment.noidung,
+                    'reply_like_status', replycomment.likecomment,
+                    'reply_created_at', replycomment.created_at
+                )
+            ) AS reply_comments
         FROM
             comment
         LEFT JOIN
             users ON users.id_user = comment.id_user
+        LEFT JOIN
+            replycomment ON replycomment.id_comment = comment.id_comment
+        LEFT JOIN
+            users AS users_reply ON users_reply.id_user = replycomment.id_user
         WHERE
-            comment.id_car = '${carId}';`,
+            comment.id_car = '${carId}'
+        GROUP BY
+            comment.id_comment;`,
 
         (err, result) => {
             if (err) {
@@ -491,10 +506,18 @@ app.post('/getCommentByidCar', (req, res, next) => {
                 return;
             }
 
+            let fullResults = []; // Khởi tạo mảng để lưu trữ tất cả các kết quả
+
             // Kiểm tra xem có dữ liệu bình luận hay không
             if (result.length > 0) {
+                // Lặp qua từng dòng kết quả và chuyển đổi chuỗi JSON thành đối tượng JavaScript
+                result.forEach(row => {
+                    row.reply_comments = JSON.parse(`[${row.reply_comments}]`);
+                    fullResults.push(row);
+                });
+
                 // Gửi phản hồi với dữ liệu bình luận và hình ảnh nếu có
-                res.status(200).json(result);
+                res.status(200).json(fullResults);
             } else {
                 // Nếu không có kết quả, trả về một phản hồi trống hoặc một thông báo lỗi
                 res.status(404).json({ message: 'Không có dữ liệu bình luận cho xe này' });
@@ -504,6 +527,27 @@ app.post('/getCommentByidCar', (req, res, next) => {
 });
 
 
+app.post('/insertReplycomment', authenticateToken, (req, res) => {
+    const userId = req.user.id;
+    const { id_comment, likecomment, noidung } = req.body;
+    const currentTimeVietnam = momentZone().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss');
+    // Query SQL để chèn dữ liệu vào bảng replycomment
+    const query = `INSERT INTO replycomment (id_reply,id_comment, id_user, likecomment, noidung,created_at) VALUES (UUID(),?, ?, ?, ?,?)`;
+    const values = [id_comment, userId, likecomment, noidung, currentTimeVietnam];
+
+    // Thực thi truy vấn SQL
+    con.query(query, values, (err, result) => {
+        if (err) {
+            console.error('Error inserting reply comment:', err);
+            res.status(500).json({ error: 'Error inserting reply comment' });
+            return;
+        }
+
+        console.log('Reply comment inserted successfully');
+
+        res.status(200).json({ success: true, message: 'Reply comment inserted successfully' });
+    });
+});
 // app.post('/getCommentByidCar', (req, res, next) => {
 //     const carId = req.body.id_car; // Lấy ID của người dùng từ token
 //     // Thực hiện truy vấn để lấy thông tin người dùng từ cơ sở dữ liệu

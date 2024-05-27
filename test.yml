@@ -1,0 +1,37 @@
+config:
+  target: 'http://localhost:5000'
+  phases:
+    - duration: 60
+      arrivalRate: 1000
+  defaults:
+    headers:
+      Content-Type: application/json
+
+scenarios:
+  - name: Get active cars
+    flow:
+      - get:
+          url: "/getCars"
+          validate:
+            - statusCode: 200
+
+  - name: Add new cars with images
+    flow:
+      - post:
+          url: "/addCars"
+          json:
+            carname: "New Car"
+            automaker: "New Automaker"
+            price: 20000
+            description: "Description of the new car"
+            active: "active"
+            images:
+              - C:\project\BanOto\public\images\0b4c8e7b-cc5f-47d2-91a0-abe6bcb3160b-images (2).jfif
+              - C:\project\BanOto\public\images\0b4c8e7b-cc5f-47d2-91a0-abe6bcb3160b-images (2).jfif
+              - C:\project\BanOto\public\images\0b4c8e7b-cc5f-47d2-91a0-abe6bcb3160b-images (2).jfif
+              - C:\project\BanOto\public\images\0b4c8e7b-cc5f-47d2-91a0-abe6bcb3160b-images (2).jfif
+              - C:\project\BanOto\public\images\0b4c8e7b-cc5f-47d2-91a0-abe6bcb3160b-images (2).jfif
+              - C:\project\BanOto\public\images\0b4c8e7b-cc5f-47d2-91a0-abe6bcb3160b-images (2).jfif
+              - C:\project\BanOto\public\images\0b4c8e7b-cc5f-47d2-91a0-abe6bcb3160b-images (2).jfif
+          validate:
+            - statusCode: 200

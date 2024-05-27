@@ -6,6 +6,8 @@ const dropdownMenuUser = document.getElementById('dropdown-menu-Users');
 const dropdownMenuProducts = document.getElementById('dropdown-menu-Products');
 let dataArr = [];
 let choosen = null;
+let currentPage = 1;
+
 userProfile.addEventListener('click', function () {
     dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
 });
@@ -29,18 +31,18 @@ document.getElementById('Show-btn1').addEventListener('click', function () {
     choosen = 'Users';
     const userTable = document.getElementById('userTable');
     userTable.style.display = 'table';
-    ShowUsers();
+    ShowUsers(currentPage);
 });
 document.getElementById('Show-btn-Products').addEventListener('click', function () {
     choosen = 'Cars';
     const userTable = document.getElementById('userTable');
     userTable.style.display = 'table';
-    ShowCars();
+    ShowCars(currentPage);
 
 });
 document.getElementById('btn-reload').addEventListener('click', function () {
     event.preventDefault();
-    reloadData();
+    reloadData(currentPage);
 });
 // document.getElementById('btn-delete-car').addEventListener('click', function () {
 //     event.preventDefault();
@@ -61,7 +63,7 @@ document.getElementById('btn-search').addEventListener('click', function () {
 
 
 
-function ShowUsers() {
+function ShowUsers(currentPage) {
     // const userTableBody = document.getElementById('userTableBody');
     // userTableBody.innerHTML = '';
 
@@ -84,13 +86,13 @@ function ShowUsers() {
             // showUserOnTable(data);
             dataArr = data.slice();
             createPagination(data, 10, choosen);
-            displayPage(data, 1, 10, choosen);
+            displayPage(data, currentPage, 10, choosen);
         })
         .catch(error => {
             console.error('Đã xảy ra lỗi:', error);
         });
 }
-function ShowCars() {
+function ShowCars(currentPage) {
     fetch('/getCarsInfo', {
         method: 'GET',
         headers: {
@@ -107,20 +109,20 @@ function ShowCars() {
         .then(data => {
             dataArr = data.slice();
             createPagination(data, 10, choosen);
-            displayPage(data, 1, 10, choosen);
+            displayPage(data, currentPage, 10, choosen);
         })
         .catch(error => {
             console.error('Đã xảy ra lỗi:', error);
         });
 }
 
-function reloadData() {
+function reloadData(currentPage) {
     switch (choosen) {
         case 'Cars':
-            ShowCars();
+            ShowCars(currentPage);
             break;
         case 'Users':
-            ShowUsers();
+            ShowUsers(currentPage);
             break;
         default:
             console.log('I have no preference.');
@@ -156,7 +158,7 @@ function searchInfo(keyword, data) {
         return item.arrCars.user_ten.toLowerCase().includes(keyword.toLowerCase());
     });
 
-    createPagination(searchData, 10, "Cars");
+    createPagination(searchData, 10, "Cars", 1);
     displayPage(searchData, 1, 10, "Cars");
 }
 function convertTime(timezone) {
@@ -186,6 +188,10 @@ function createPagination(data, itemsPerPage, choosen) {
         const button = document.createElement('button');
         button.textContent = i;
         button.addEventListener('click', () => {
+            // currentPage = i;
+            console.log(`Clicked page ${currentPage}`);
+            currentPage = parseInt(button.textContent);
+
             displayPage(data, i, itemsPerPage, choosen);
             const paginationButtons = document.querySelectorAll('#pagination button');
             paginationButtons.forEach(btn => btn.classList.remove('selected'));
@@ -200,7 +206,7 @@ function createPagination(data, itemsPerPage, choosen) {
     prevButton.textContent = 'Previous';
     prevButton.addEventListener('click', () => {
         const selectedButton = document.querySelector('#pagination button.selected');
-        let currentPage = parseInt(selectedButton.textContent);
+        currentPage = parseInt(selectedButton.textContent);
         if (currentPage > 1) {
             displayPage(data, currentPage - 1, itemsPerPage, choosen);
             selectedButton.classList.remove('selected');
@@ -325,7 +331,7 @@ function displayPage(data, pageNumber, itemsPerPage, choosen) {
                             <button class="btn" id="btn-edit-car" onclick="editUserCar('${item.arrCars.id_car.toString()}', this.value)"><img src="edit_icon.png" alt="Sửa"></button>
                         </td>
                         <td> 
-                            <button class="btn-click" id="btn-delete-car" onclick="deleteCar('${item.arrCars.id_car.toString()}')"><img src="delete_icon.png" alt="Xóa"></button>
+                            <button class="btn-click" id="btn-delete-car" onclick="deleteCar('${item.arrCars.id_car.toString()}',currentPage)"><img src="delete_icon.png" alt="Xóa"></button>
                         </td>
                     `;
                     userTableBody.appendChild(row);
@@ -344,7 +350,7 @@ function displayPage(data, pageNumber, itemsPerPage, choosen) {
 }
 
 // });
-function deleteCar(id_car) {
+function deleteCar(id_car, currentPage) {
     // Hiển thị hộp thoại xác nhận
     const isConfirmed = confirm("Bạn có chắc chắn muốn xóa người dùng này?");
 
@@ -366,7 +372,7 @@ function deleteCar(id_car) {
             .then(response => {
                 if (response.ok) {
                     alert('User data deleted successfully');
-                    ShowCars();
+                    reloadData(currentPage);
                     // refeshCar();
                     // Thực hiện các hành động cần thiết khi xóa thành công (nếu có)
                 } else {
@@ -427,7 +433,7 @@ function editUserCar(id_car, option) {
         .then(response => {
             if (response.ok) {
                 alert('Car data updated successfully');
-                ShowCars();
+                // ShowCars();
             } else {
                 alert('Failed to update user data:', response.statusText);
             }
