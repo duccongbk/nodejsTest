@@ -1,12 +1,47 @@
-// document.addEventListener('DOMContentLoaded', function () {
 
+import { TableFactory } from './tableFactory.js';
 const userProfile = document.getElementById('user-profile');
 const dropdownMenu = document.getElementById('dropdown-menu');
 const dropdownMenuUser = document.getElementById('dropdown-menu-Users');
 const dropdownMenuProducts = document.getElementById('dropdown-menu-Products');
-let dataArr = [];
-let choosen = null;
+const searchcontainer = document.getElementById('searchContainer');
+
 let currentPage = 1;
+let currentTable = null;
+let currentType = '';
+
+document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    document.cookie = `jwt=${token}; path=/;`;
+    getUser();
+});
+async function getUser() {
+    fetch('/getUserByid', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                const confirmResult = confirm("Bạn cần đăng nhập để tiếp tục. Bạn có muốn chuyển đến trang đăng nhập không?");
+                if (confirmResult === true) {
+                    window.open('/login', '_blank');
+                }
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data) {
+                showUserInfo(data);
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with your fetch operation:', error);
+        });
+}
 
 userProfile.addEventListener('click', function () {
     dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
@@ -15,6 +50,7 @@ userProfile.addEventListener('click', function () {
 document.getElementById("Users").addEventListener("click", function () {
     if (dropdownMenuUser.style.display === "none") {
         dropdownMenuUser.style.display = "block";
+
     } else {
         dropdownMenuUser.style.display = "none";
     }
@@ -27,107 +63,78 @@ document.getElementById("Products").addEventListener("click", function () {
     }
 });
 
-document.getElementById('Show-btn1').addEventListener('click', function () {
-    choosen = 'Users';
-    const userTable = document.getElementById('userTable');
+document.getElementById('Show-btn1').addEventListener('click', async () => {
     userTable.style.display = 'table';
-    ShowUsers(currentPage);
+    searchcontainer.style.display = "block";
+    currentType = 'users';
+    currentTable = TableFactory.createTable(currentType);
+    await currentTable.fetchDataAndDisplay(await currentTable.fetchData('/getUsers'), 1, 10);
 });
-document.getElementById('Show-btn-Products').addEventListener('click', function () {
-    choosen = 'Cars';
-    const userTable = document.getElementById('userTable');
+document.getElementById('Show-btn-Products').addEventListener('click', async () => {
     userTable.style.display = 'table';
-    ShowCars(currentPage);
-
+    searchcontainer.style.display = "block";
+    currentPage = 1;
+    currentType = 'cars';
+    currentTable = TableFactory.createTable(currentType);
+    await currentTable.fetchDataAndDisplay(await currentTable.fetchData('/getCarsInfo'), 1, 10);
 });
-document.getElementById('btn-reload').addEventListener('click', function () {
-    event.preventDefault();
-    reloadData(currentPage);
-});
-// document.getElementById('btn-delete-car').addEventListener('click', function () {
+// document.getElementById('btn-reload').addEventListener('click', function () {
 //     event.preventDefault();
-//     deleteCar();
+
 // });
-document.getElementById('searchInput').addEventListener('keypress', function (event) {
+
+document.getElementById('searchInput').addEventListener('keypress', async (event) => {
     if (event.key === 'Enter') {
         event.preventDefault(); // Ngăn chặn hành động mặc định của phím Enter
-        const username = document.getElementById('searchInput').value;
-        searchInfo(username, dataArr);
+        const typesearch = document.getElementById('searchInput').value;
+
+        switch (currentType) {
+            case 'users':
+                await currentTable.search(await currentTable.fetchData('/getUsers'), typesearch, 1, 8);
+                break;
+            case 'cars':
+                await currentTable.search(await currentTable.fetchData('/getCarsInfo'), typesearch, 1, 10);
+                break;
+            default:
+                console.log('Unknown type');
+                // Xử lý cho trường hợp loại không xác định
+                break;
+        }
+
+        document.getElementById('searchInput').value = ''; // Xóa giá trị của trường tìm kiếm sau khi thực hiện tìm kiếm
     }
 });
 
-document.getElementById('btn-search').addEventListener('click', function () {
-    const username = document.getElementById('searchInput').value;
-    searchInfo(username, dataArr);
-});
+document.getElementById('searchButton').addEventListener('click', async () => {
 
-
-
-function ShowUsers(currentPage) {
-    // const userTableBody = document.getElementById('userTableBody');
-    // userTableBody.innerHTML = '';
-
-    fetch('/getUsers', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Đăng nhập không thành công');
-            }
-        })
-        .then(data => {
-
-            // showUserOnTable(data);
-            // showUserOnTable(data);
-            dataArr = data.slice();
-            createPagination(data, 10, choosen);
-            displayPage(data, currentPage, 10, choosen);
-        })
-        .catch(error => {
-            console.error('Đã xảy ra lỗi:', error);
-        });
-}
-function ShowCars(currentPage) {
-    fetch('/getCarsInfo', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Đăng nhập không thành công');
-            }
-        })
-        .then(data => {
-            dataArr = data.slice();
-            createPagination(data, 10, choosen);
-            displayPage(data, currentPage, 10, choosen);
-        })
-        .catch(error => {
-            console.error('Đã xảy ra lỗi:', error);
-        });
-}
-
-function reloadData(currentPage) {
-    switch (choosen) {
-        case 'Cars':
-            ShowCars(currentPage);
+    var typesearch = document.getElementById('searchInput').value;
+    switch (currentType) {
+        case 'users':
+            await currentTable.search(await currentTable.fetchData('/getUsers'), typesearch, 1, 8);
             break;
-        case 'Users':
-            ShowUsers(currentPage);
+        case 'cars':
+            await currentTable.search(await currentTable.fetchData('/getCarsInfo'), typesearch, 1, 10);
             break;
         default:
-            console.log('I have no preference.');
+            console.log('Unknown type');
+            // Xử lý cho trường hợp loại không xác định
+            break;
     }
+    document.getElementById('searchInput').value = '';
+});
+
+
+function showUserInfo(data) {
+    const imgElement = document.getElementById("imageUser");
+    const spanElement = document.getElementById("spanUser");
+    imgElement.src = "C:\project\BanOto\public\images\0a0d3cbc-0068-4ec5-b663-e2b56db497d0-images (1).jfif";
+    imgElement.alt = "User Avatar";
+    // Lấy thẻ span chứa tên người dùng và thiết lập nội dung
+    spanElement.textContent = data.ten;
 }
+
+
+
 function searchInfo(keyword, data) {
     document.getElementById('searchInput').value = '';
     switch (choosen) {
@@ -179,175 +186,8 @@ function convertTime(timezone) {
     const formattedTime = `${formattedDay}-${formattedMonth}-${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
     return formattedTime;
 }
-function createPagination(data, itemsPerPage, choosen) {
-
-    const totalPages = Math.min(Math.ceil(data.length / itemsPerPage), 50); // Giới hạn số trang tối đa là 50
-    const paginationContainer = document.getElementById('pagination');
-    paginationContainer.innerHTML = '';
-    for (let i = 1; i <= totalPages; i++) {
-        const button = document.createElement('button');
-        button.textContent = i;
-        button.addEventListener('click', () => {
-            // currentPage = i;
-            console.log(`Clicked page ${currentPage}`);
-            currentPage = parseInt(button.textContent);
-
-            displayPage(data, i, itemsPerPage, choosen);
-            const paginationButtons = document.querySelectorAll('#pagination button');
-            paginationButtons.forEach(btn => btn.classList.remove('selected'));
-            button.classList.add('selected');
-        });
-        paginationContainer.appendChild(button);
-    }
-    // Tạo nút "First Preview"
-
-    // Tạo nút "Previous"
-    const prevButton = document.createElement('button');
-    prevButton.textContent = 'Previous';
-    prevButton.addEventListener('click', () => {
-        const selectedButton = document.querySelector('#pagination button.selected');
-        currentPage = parseInt(selectedButton.textContent);
-        if (currentPage > 1) {
-            displayPage(data, currentPage - 1, itemsPerPage, choosen);
-            selectedButton.classList.remove('selected');
-            currentPage -= 1;
-            const prevPageButton = document.querySelector(`#pagination button:nth-child(${currentPage})`);
-            prevPageButton.classList.add('selected');
-        }
-    });
-    paginationContainer.appendChild(prevButton);
-
-    // Tạo các nút trang
 
 
-    // Tạo nút "Next"
-    const nextButton = document.createElement('button');
-    nextButton.textContent = 'Next';
-    nextButton.addEventListener('click', () => {
-        const selectedButton = document.querySelector('#pagination button.selected');
-        let currentPage = parseInt(selectedButton.textContent);
-        if (currentPage < totalPages) {
-            displayPage(data, currentPage + 1, itemsPerPage, choosen);
-            selectedButton.classList.remove('selected');
-            currentPage += 1;
-            const nextPageButton = document.querySelector(`#pagination button:nth-child(${currentPage})`);
-            nextPageButton.classList.add('selected');
-        }
-    });
-    paginationContainer.appendChild(nextButton);
-    const firstPreviewButton = document.createElement('button');
-    firstPreviewButton.textContent = 'First Preview';
-    firstPreviewButton.addEventListener('click', () => {
-        displayPage(data, 1, itemsPerPage, choosen);
-        const paginationButtons = document.querySelectorAll('#pagination button');
-        paginationButtons.forEach(btn => btn.classList.remove('selected'));
-        firstPreviewButton.classList.add('selected');
-    });
-    paginationContainer.appendChild(firstPreviewButton);
-
-    // Tạo nút "Last Preview"
-    const lastPreviewButton = document.createElement('button');
-    lastPreviewButton.textContent = 'Last Preview';
-    lastPreviewButton.addEventListener('click', () => {
-        displayPage(data, totalPages, itemsPerPage, choosen);
-        const paginationButtons = document.querySelectorAll('#pagination button');
-        paginationButtons.forEach(btn => btn.classList.remove('selected'));
-        lastPreviewButton.classList.add('selected');
-    });
-    paginationContainer.appendChild(lastPreviewButton);
-
-    // Hiển thị trang đầu tiên ban đầu
-    const firstPageButton = document.querySelector('#pagination button:first-child');
-    firstPageButton.classList.add('selected');
-    displayPage(data, 1, itemsPerPage, choosen);
-}
-
-
-function displayPage(data, pageNumber, itemsPerPage, choosen) {
-    const startIndex = (pageNumber - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const pageData = data.slice(startIndex, endIndex);
-    const userTableBody = document.getElementById('userTableBody');
-    userTableBody.innerHTML = '';
-
-    if (pageData.length > 0) {
-        switch (choosen) {
-            case 'Users':
-                const columnUsers = ['STT', 'Tên', 'Số điện thoại', 'Địa chỉ', 'Ngày đăng ký', 'Tùy Chỉnh'];
-
-                // Lặp qua mảng columnHeaders để tạo các thẻ <th> và thêm chúng vào <thead>
-                columnUsers.forEach(headerText => {
-                    const th = document.createElement('th');
-                    th.textContent = headerText;
-                    userTableBody.appendChild(th);
-                });
-                pageData.forEach((item, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${startIndex + index + 1}</td>
-                        <td>${item.arrusers.ten}</td>
-                        <td>${item.arrusers.sdt}</td>
-                        <td>${item.arrusers.diachi}</td>
-                        <td>${convertTime(item.arrusers.created_at)}</td>
-                        <td>
-                            <button class="btn" onclick="editUser('${item.arrusers.id_user.toString()}')"><img src="edit_icon.png" alt="Sửa"></button>
-                        </td>
-                        <td> 
-                            <button class="btn-click" onclick="deleteUser('${item.arrusers.id_user.toString()}')"><img src="delete_icon.png" alt="Xóa"></button>
-                        </td>
-                    `;
-                    userTableBody.appendChild(row);
-                });
-                break;
-            case 'Cars':
-                const columnCars = ['STT', 'Tên', 'Số điện thoại', 'Địa chỉ', 'Tên Xe', 'Hãng Xe', 'Giá Xe', 'Ngày Đăng', 'Trạng Thái'];
-                // Lặp qua mảng columnHeaders để tạo các thẻ <th> và thêm chúng vào <thead>
-                columnCars.forEach(headerText => {
-                    const th = document.createElement('th');
-                    th.textContent = headerText;
-                    userTableBody.appendChild(th);
-                });
-                pageData.forEach((item, index) => {
-
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${startIndex + index + 1}</td>
-                        <td>${item.arrCars.user_ten}</td>
-                        <td>${item.arrCars.user_sdt}</td>
-                        <td>${item.arrCars.user_diachi}</td>
-                        <td>${item.arrCars.carname}</td>
-                        <td>${item.arrCars.automaker}</td>
-                        <td>${item.arrCars.price}</td>
-                        <td>${convertTime(item.arrCars.car_created_at)}</td>   
-                        <td>
-                      <select id="activeDropdown" class="activeDropdown" onchange="editUserCar('${item.arrCars.id_car.toString()}', this.value)">
-                      <option value="active" ${item.arrCars.active === 'active' ? 'selected' : ''} style="color: green;">Active</option>
-                      <option value="inactive" ${item.arrCars.active === 'inactive' ? 'selected' : ''} style="color: red;">Inactive</option>
-                      <option value="null" ${item.arrCars.active === 'null' ? 'selected' : ''} style="color: red;">Null</option>
-                      <option value="block" ${item.arrCars.active === 'block' ? 'selected' : ''} style="color: red;">Block</option>
-                      </select>
-                        </td>
-                        <td>
-                            <button class="btn" id="btn-edit-car" onclick="editUserCar('${item.arrCars.id_car.toString()}', this.value)"><img src="edit_icon.png" alt="Sửa"></button>
-                        </td>
-                        <td> 
-                            <button class="btn-click" id="btn-delete-car" onclick="deleteCar('${item.arrCars.id_car.toString()}',currentPage)"><img src="delete_icon.png" alt="Xóa"></button>
-                        </td>
-                    `;
-                    userTableBody.appendChild(row);
-                });
-                break;
-
-            default:
-                console.log('I have no preference.');
-        }
-
-
-
-    } else {
-        alert("Không có dữ liệu để hiển thị");
-    }
-}
 
 // });
 function deleteCar(id_car, currentPage) {

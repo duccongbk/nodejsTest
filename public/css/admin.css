@@ -195,8 +195,59 @@ button {
     /* Khoảng cách giữa input và button */
 }
 
-/* CSS cho nút trang được chọn */
-.pagination button.selected {
-    background-color: dodgerblue;
+/* Định dạng bảng */
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+/* Định dạng hàng tiêu đề */
+.header-row {
+    background-color: #f2f2f2;
+}
+
+/* Định dạng ô tiêu đề */
+.header-cell {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-weight: bold;
+}
+
+/* Định dạng hàng dữ liệu */
+.data-row:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Định dạng ô dữ liệu */
+.data-cell {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+/* Định dạng nút phân trang */
+.pagination-button {
+    padding: 8px 12px;
+    margin: 0 5px;
+    border: 1px solid #ddd;
+    background-color: #f2f2f2;
+    cursor: pointer;
+}
+
+.pagination-button:hover {
+    background-color: #ddd;
+}
+
+.current-page {
+    background-color: #4CAF50;
     color: white;
+    border: 1px solid #4CAF50;
+}
+
+.highlighted {
+    font-weight: bold;
+    background-color: yellow;
+    /* Bạn có thể chọn màu khác nếu muốn */
 }

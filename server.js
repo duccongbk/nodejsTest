@@ -226,34 +226,33 @@ app.post('/addUsers', (req, res, next) => {
         }
     );
 });
-app.post('/Login', (req, res, next) => {
-    const { sdt, pass } = req.body;
-
-    // Kiểm tra nếu số điện thoại và mật khẩu đúng
-    con.query(
-        `SELECT * FROM users WHERE sdt = ? AND pass = ?`,
-        [sdt, pass],
-        (err, result) => {
-            if (err) {
-                console.error('Error checking phone number and password in MySQL:', err);
-                res.status(500).send('Internal server error');
-                return;
-            }
-            if (result.length > 0) {
-                // Nếu tìm thấy người dùng với số điện thoại và mật khẩu khớp, gửi thông tin người dùng về client
-                const user = result[0];
-                const expiresIn = 1000;
-                const token = jwt.sign({ id: user.id_user }, secretKey, { expiresIn: expiresIn });
-                const expirationDate = new Date(Date.now() + expiresIn * 1000);
-                res.cookie('jwt', token, { httpOnly: true, expires: expirationDate });
-                res.status(200).json({ token: token }); // 
-            } else {
-                // Nếu không tìm thấy người dùng với số điện thoại và mật khẩu tương ứng, trả về thông báo lỗi
-                res.status(401).send('Số điện thoại hoặc mật khẩu không chính xác');
-            }
-        }
-    );
-});
+// app.post('/Login', (req, res, next) => {
+//     const { sdt, pass } = req.body;
+//     // Kiểm tra nếu số điện thoại và mật khẩu đúng
+//     con.query(
+//         `SELECT * FROM users WHERE sdt = ? AND pass = ?`,
+//         [sdt, pass],
+//         (err, result) => {
+//             if (err) {
+//                 console.error('Error checking phone number and password in MySQL:', err);
+//                 res.status(500).send('Internal server error');
+//                 return;
+//             }
+//             if (result.length > 0) {
+//                 // Nếu tìm thấy người dùng với số điện thoại và mật khẩu khớp, gửi thông tin người dùng về client
+//                 const user = result[0];
+//                 const expiresIn = 1000;
+//                 const token = jwt.sign({ id: user.id_user }, secretKey, { expiresIn: expiresIn });
+//                 const expirationDate = new Date(Date.now() + expiresIn * 1000);
+//                 res.cookie('jwt', token, { httpOnly: true, expires: expirationDate });
+//                 res.status(200).json({ token: token }); // 
+//             } else {
+//                 // Nếu không tìm thấy người dùng với số điện thoại và mật khẩu tương ứng, trả về thông báo lỗi
+//                 res.status(401).send('Số điện thoại hoặc mật khẩu không chính xác');
+//             }
+//         }
+//     );
+// });
 
 // Middleware để xác thực token
 function encryptData(data, secretKeyUser, iv) {
@@ -266,6 +265,57 @@ function encryptData(data, secretKeyUser, iv) {
 
     return encryptedData;
 }
+app.post('/login', (req, res, next) => {
+    const { sdt, pass } = req.body;
+
+    // Kiểm tra xem số điện thoại và mật khẩu có khớp trong cơ sở dữ liệu không
+    con.query(
+        `SELECT * FROM users WHERE sdt = ? AND pass = ?`,
+        [sdt, pass],
+        (err, result) => {
+            if (err) {
+                console.error('Error checking phone number and password in MySQL:', err);
+                res.status(500).send('Internal server error');
+                return;
+            }
+            if (result.length > 0) {
+                // Nếu tìm thấy người dùng với số điện thoại và mật khẩu khớp
+                const user = result[0];
+                const expiresIn = 200;
+                const token = jwt.sign({ id: user.id_user }, secretKey, { expiresIn: expiresIn });
+                const expirationDate = new Date(Date.now() + expiresIn * 100);
+                res.cookie('jwt', token, { httpOnly: true, expires: expirationDate });
+
+                // Kiểm tra xem người dùng có vai trò là admin không
+                con.query(
+                    `SELECT r.role_name
+                    FROM admin_roles ar
+                    JOIN roles r ON ar.id_role = r.id_role
+                    WHERE ar.id_admin = ?;
+                    `,
+                    [user.id_user],
+                    (err, result) => {
+                        if (err) {
+                            console.error('Error checking user roles in MySQL:', err);
+                            res.status(500).send('Internal server error');
+                            return;
+                        }
+                        if (result.length > 0) {
+                            // Nếu người dùng có vai trò là admin, chuyển hướng đến trang admin
+                            res.status(200).json({ token: token, redirectUrl: 'http://admin.localhost:3000/v1' });
+                        } else {
+                            // Nếu không phải là admin, chuyển hướng đến trang home
+                            res.status(200).json({ token: token, redirectUrl: '/home' });
+                        }
+                    }
+                );
+            } else {
+                // Nếu không tìm thấy người dùng với số điện thoại và mật khẩu tương ứng, trả về thông báo lỗi
+                res.status(401).send('Số điện thoại hoặc mật khẩu không chính xác');
+            }
+        }
+    );
+});
 
 
 // Hàm giải mã dữ liệu
@@ -332,12 +382,12 @@ app.post('/searchUsers', (req, res) => {
         }
     });
 });
-app.post('/getUserByid', (req, res, next) => {
-    const userId = req.body.id_user; // Lấy ID của người dùng từ token
+app.get('/getUserByid', authenticateToken, (req, res,) => {
+    const userId = req.user.id;
     console.log(userId);
     // Thực hiện truy vấn để lấy thông tin người dùng từ cơ sở dữ liệu
     con.query(
-        `SELECT * FROM users WHERE id_user = '${userId}'`,
+        `SELECT * FROM users WHERE id_user = ?`,
         [userId],
         (err, result) => {
             if (err) {
@@ -350,6 +400,7 @@ app.post('/getUserByid', (req, res, next) => {
             if (result.length > 0) {
                 // Nếu có dữ liệu, gửi thông tin người dùng về client dưới dạng JSON
                 const userData = result[0];
+                delete userData.pass;
                 res.json(userData);
             } else {
                 // Nếu không tìm thấy người dùng, gửi thông báo lỗi về client
@@ -405,6 +456,7 @@ app.get('/getUsers', (req, res, next) => {
                 if (result.length > 0) {
                     let fullResult = [];
                     for (let i = 0; i < result.length; i++) {
+                        delete result[i].pass;
                         fullResult.push({ message: 'thành công', arrusers: result[i] });
                     }
                     const dataToEncrypt = JSON.stringify(fullResult);
@@ -682,27 +734,7 @@ app.post('/addCars', authenticateToken, upload.array('images', 7), (req, res) =>
         }
     });
 });
-// app.post('/addComments', authenticateToken, async (req, res) => {
-//     const userId = req.user.id;
-//     const { id_car, noidung, like_status } = req.body;
-//     const currentTimeVietnam = momentZone().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss');
 
-//     // Tạo câu lệnh INSERT
-//     const sql = `INSERT INTO comment (id_comment,id_car, id_user, noidung, like_status, created_at) 
-//              VALUES (UUID(), ?,?, ?, ?, ?)`;
-
-//     const values = [id_car, userId, noidung, like_status, currentTimeVietnam];
-
-//     // Thực thi câu lệnh INSERT
-//     try {
-//         const result = await con.query(sql, values);
-//         console.log('Data inserted successfully into PostgreSQL');
-//         res.status(200).send('true');
-//     } catch (err) {
-//         console.error('Error inserting data into PostgreSQL:', err);
-//         res.status(500).send('Internal server error');
-//     }
-// });
 app.post('/addComments', authenticateToken, uploadImagesComment.array('images'), async (req, res) => {
     const { id_car, noidung, like_status } = req.body;
     const userId = req.user.id;
@@ -727,24 +759,7 @@ app.post('/addComments', authenticateToken, uploadImagesComment.array('images'),
     });
 });
 
-// app.post('/addCars', upload.array('images', 10), (req, res, next) => {
-//     const { id_user, carname, automaker, price, description, image1, image2, image3, image4, image5, image6, image7 } = req.body;
 
-//     // Tạo câu lệnh INSERT
-//     const sql = `INSERT INTO car (id_car, id_user, carname, automaker, price, description, image1, image2, image3, image4, image5, image6, image7) 
-//                  VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-//     // Thực thi câu lệnh INSERT
-//     con.query(sql, [id_user, carname, automaker, price, description, image1, image2, image3, image4, image5, image6, image7], (err, result) => {
-//         if (err) {
-//             console.error('Error inserting data into MySQL:', err);
-//             res.status(500).send('Internal server error');
-//         } else {
-//             console.log('Data inserted successfully into MySQL');
-//             res.status(200).send('Data inserted successfully');
-//         }
-//     });
-// });
 const port = 3000; // Thay thế 4000 bằng cổng mong muốn
 
 http.listen(port, () => {

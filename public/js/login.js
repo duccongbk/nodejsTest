@@ -30,7 +30,7 @@ class Login {
         const sdt = document.getElementById('phone').value;
         const pass = document.getElementById('password').value;
         try {
-            const response = await fetch('/Login', {
+            const response = await fetch('/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -43,11 +43,12 @@ class Login {
             if (response.ok) {
                 const data = await response.json();
                 const token = data.token;
-                document.cookie = `jwt=${token};`;
-                alert(token);
+                // document.cookie = `jwt=${token};`;
                 alert('Login successful');
-                window.location.href = '/home';
-                history.pushState(null, null, '/home');
+                // Redirect the user based on the provided URL
+                window.location.href = data.redirectUrl + '?token=' + encodeURIComponent(token);
+
+
             } else {
                 const errorMessage = await response.text();
                 alert(errorMessage);
@@ -56,6 +57,7 @@ class Login {
             console.error('Error:', error);
         }
     }
+
 }
 
 // Khởi tạo một đối tượng của lớp Login
