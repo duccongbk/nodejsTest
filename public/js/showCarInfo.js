@@ -6,38 +6,17 @@
 // runExample();
 
 document.addEventListener("DOMContentLoaded", async () => {
+    var images = [];
     const urlParams = new URLSearchParams(window.location.search);
     const idCar = urlParams.get('id_car');
     const id_comment = null;
     await getCarsInfo(idCar);
     await getCommentByidCar(idCar);
-
     document.getElementById("form_user_comment").addEventListener('submit', (event) => {
         event.preventDefault();
         addComment(idCar);
+
     });
-    // document.querySelectorAll('.like-btn').forEach(button => {
-    //     button.addEventListener('click', (event) => {
-    //         event.preventDefault();
-    //         // Handle like action here
-    //     });
-    // });
-
-    // document.querySelectorAll('.dislike-btn').forEach(button => {
-    //     button.addEventListener('click', (event) => {
-    //         event.preventDefault();
-    //         // Handle dislike action here
-    //     });
-    // });
-
-    // document.querySelectorAll('.reply-submit-btn').forEach(button => {
-    //     button.addEventListener('click', (event) => {
-    //         event.preventDefault();
-
-    //         // Handle reply action here
-    //         alert(getIdComment());
-    //     });
-    // });
 });
 
 document.getElementById('uploadImageButton').addEventListener('click', () => {
@@ -45,9 +24,7 @@ document.getElementById('uploadImageButton').addEventListener('click', () => {
 });
 
 document.getElementById('imageUpload').addEventListener('change', handleFileSelect);
-
 let selectedFiles = [];
-
 function handleFileSelect(event) {
     const files = event.target.files;
     const previewContainer = document.getElementById('previewContainer');
@@ -88,7 +65,6 @@ function updateFileList(fileToRemove) {
 async function addComment(id_car) {
     const formData = new FormData();
     const noidung = document.getElementById('comment').value;
-    const userId = 'user_id_placeholder'; // Thay thế với ID người dùng thực tế
     const currentTime = new Date().toISOString();
 
     formData.append('id_car', id_car);
@@ -115,11 +91,14 @@ async function addComment(id_car) {
             }
         } else {
             const data = await response.json();
-            console.log('Comment added successfully:', data);
-            document.getElementById('form_user_comment').reset();
-            document.getElementById('previewContainer').innerHTML = '';
-            selectedFiles = [];
-            getCommentByidCar(id_car); // Refresh comments
+            if (data) {
+                console.log('Comment added successfully:', data);
+                document.getElementById('form_user_comment').reset();
+                document.getElementById('previewContainer').innerHTML = '';
+                selectedFiles = [];
+                getCommentByidCar(id_car); // Refresh comments
+            } else { }
+
         }
     } catch (error) {
         console.error('Error adding comment:', error);
@@ -127,9 +106,6 @@ async function addComment(id_car) {
 }
 
 async function getCommentByidCar(id_car) {
-    // const commentList = document.getElementById("comment_User").querySelector("ul");
-    // commentList.innerHTML = ''; // Clear previous comments
-
     try {
         const response = await fetch('/getCommentByidCar', {
             method: 'POST',
@@ -140,25 +116,22 @@ async function getCommentByidCar(id_car) {
                 id_car: id_car,
             })
         });
-
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-
         const commentData = await response.json();
         commentData.sort((a, b) => {
             return new Date(a.comment_created_at) - new Date(b.comment_created_at);
         });
-
         displayComments(commentData);
-        const commentContainer = document.getElementById('comment_User');
-        commentContainer.lastElementChild.scrollIntoView({ behavior: 'smooth' });
-
+        setTimeout(() => {
+            const commentContainer = document.getElementById('comment_User');
+            commentContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100); // Thời gian chờ có thể điều chỉnh tùy ý
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
     }
 }
-
 async function getCarsInfo(idCar) {
     try {
         const response = await fetch('/getCarByid', {
@@ -177,16 +150,17 @@ async function getCarsInfo(idCar) {
 
         const carData = await response.json();
         displayCars(carData);
+        return carData;
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
     }
 }
-
 function displayCars(carData) {
     const carListContainer = document.getElementById('car-list');
     carListContainer.innerHTML = '';
 
     const carInfo = carData;
+    const imagesarr = [];
 
     const carElement = document.createElement('div');
     carElement.classList.add('car-card');
@@ -219,13 +193,16 @@ function displayCars(carData) {
     carImagesContainer.classList.add('car-images');
     for (let i = 1; i <= 7; i++) {
         const imageSrc = carInfo[`image${i}`];
+        imagesarr.push(imageSrc);
         if (imageSrc) {
             const imageElement = document.createElement('img');
             imageElement.src = imageSrc;
             imageElement.alt = `Car Image ${i}`;
             imageElement.classList.add('car-image');
             imageElement.addEventListener('click', () => {
-                enlargeImage(imageSrc);
+                console.log(i);
+                console.log(carInfo[`image${i}`]);
+                enlargeImage(imageSrc, imagesarr, i);
             });
             carImagesContainer.appendChild(imageElement);
         }
@@ -254,24 +231,24 @@ async function insertReplycomment(id_comment, likecomment, noidung) {
                 window.open('/login', '_blank');
             }
             throw new Error('Network response was not ok');
-        }
+        } else {
+            const data = await response.json();
+            if (data) {
+                window.location.reload();
+                // alert("Reply comment inserted successfully");
+                // getCommentByidCar(id_car).then(() => {
+                //     const commentContainer = document.getElementById('comment_User');
+                //     commentContainer.lastElementChild.scrollIntoView({ behavior: 'smooth' });
+                // });
+                // const inputElement = document.querySelector(`.reply-text[data-id="${id_comment}"]`);
+                // if (inputElement) {
+                //     inputElement.value = '';
+                // }
+            } else {
+                // Xử lý trường hợp khi không có dữ liệu hoặc có lỗi xảy ra
+            }
 
-        const data = await response.json();
-        console.log('Reply comment inserted successfully:', data);
-        alert("Reply comment inserted successfully");
-        const commentToUpdate = commentData.find(comment => comment.id === id_comment);
 
-        // Add the new reply to the replies array of the comment
-        commentToUpdate.replies.push(newReply);
-
-        // Call displayComments to render the updated commentData
-        // displayComments(commentData);
-        const commentContainer = document.getElementById('comment_User');
-        commentContainer.lastElementChild.scrollIntoView({ behavior: 'smooth' });
-
-        const inputElement = document.querySelector(`.reply-text[data-id="${id_comment}"]`);
-        if (inputElement) {
-            inputElement.value = ''; // Clear the input field
         }
         // Handle success response as needed
     } catch (error) {
@@ -279,12 +256,10 @@ async function insertReplycomment(id_comment, likecomment, noidung) {
         // Handle error as needed
     }
 }
-
 function displayComments(commentdata) {
-    console.log(commentdata);
+
     const commentList = document.getElementById("comment_User").querySelector("ul");
     commentList.innerHTML = ''; // Clear previous comments
-
     commentdata.forEach(comment => {
         const li = document.createElement("li");
         li.innerHTML = `
@@ -302,12 +277,16 @@ function displayComments(commentdata) {
         // Thêm danh sách phản hồi vào bình luận hiện tại
         if (comment.comment_images) {
             const images = JSON.parse(comment.comment_images);
-            images.forEach(image => {
+            const imagearr = [];
+            // console.log(images);
+            images.forEach((image, index) => {
                 const img = document.createElement('img');
                 img.src = image.path; // Use the path from the comment data
+                imagearr.push(img.src);
                 img.classList.add('comment-image');
                 img.addEventListener('click', () => {  // Gắn sự kiện click vào ảnh
-                    enlargeImage(img.src); // Sử dụng đường dẫn của ảnh khi click
+                    console.log(index);
+                    enlargeImage(img.src, imagearr, index); // Sử dụng đường dẫn của ảnh khi click
                 });
                 li.appendChild(img);
             });
@@ -329,52 +308,33 @@ function displayComments(commentdata) {
 
         });
         li.appendChild(replyList);
-        li.addEventListener('mouseenter', (event) => {
+        li.addEventListener('click', (event) => {
             event.preventDefault();
             const replyInput = li.querySelector('.reply-input');
             if (replyInput) {
-                replyInput.style.display = 'block';
+                if (replyInput.style.display === 'block') {
+                    // replyInput.style.display = 'none';
+                } else {
+                    replyInput.style.display = 'block';
+                }
             }
         });
-
-        // Add event listener to hide reply button when not hovered
-        li.addEventListener('mouseleave', (event) => {
-            event.preventDefault();
-            const replyInput = li.querySelector('.reply-input');
-            if (replyInput) {
-                replyInput.style.display = 'none';
-
-            }
-        });
-
         commentList.appendChild(li);
     });
 }
-
 function handleReplySubmit(commentId) {
     const replyInput = document.querySelector(`.reply-text[data-id="${commentId}"]`);
-    if (replyInput) {
+    if (replyInput.value.trim() !== '') { // Kiểm tra xem input có rỗng hay không
         const replyText = replyInput.value;
         insertReplycomment(commentId, null, replyText);
+        // Sau khi phản hồi đã được gửi đi và comment mới đã được thêm vào, cuộn sẽ di chuyển xuống dưới cùng của phần tử chứa các comment
+        const commentContainer = document.getElementById('comment_User');
+        commentContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
     } else {
-        console.error('Reply input element not found');
+        alert("Không được để trống");
     }
 }
 
-// function toggleEnlargeImage(imageSrc) {
-//     const modal = document.getElementById('modal');
-//     const modalContent = document.getElementById('modal-content');
-//     const modalImage = document.getElementById('modal-image');
-
-//     if (modal.classList.contains('show')) {
-//         // Nếu modal đang hiển thị, ẩn nó đi
-//         modal.classList.remove('show');
-//     } else {
-//         // Nếu modal đang ẩn, hiển thị nó và đặt src cho hình ảnh
-//         modal.classList.add('show');
-//         modalImage.src = imageSrc;
-//     }
-// }
 function getTimeDifference(timestamp) {
     const commentTime = new Date(timestamp);
     const currentTime = new Date();
@@ -409,7 +369,7 @@ function getTimeDifference(timestamp) {
     return `${years} years ago`;
 }
 
-function enlargeImage(imageSrc) {
+function enlargeImage(imageSrc, images, currentIndex) {
     const modal = document.createElement('div');
     modal.classList.add('modal');
 
@@ -423,11 +383,47 @@ function enlargeImage(imageSrc) {
         modal.remove();
     });
 
+    const zoomButton = document.createElement('span');
+    zoomButton.innerHTML = '+'; // Biểu tượng "+"
+    zoomButton.classList.add('zoom'); 0
+    let currentScale = 1; // Giá trị ban đầu của scale
+
+    zoomButton.addEventListener('click', () => {
+        currentScale += 0.25; // Tăng giá trị scale lên 0.5 mỗi lần click
+        img.style.transform = `scale(${currentScale})`;
+    });
+
+    const prevButton = document.createElement('span');
+    prevButton.innerHTML = '&#9664;'; // Biểu tượng mũi tên trái
+    prevButton.classList.add('prev');
+    prevButton.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            img.src = images[currentIndex];
+            currentScale = 1; // Đặt lại scale khi chuyển hình
+            img.style.transform = `scale(${currentScale})`;
+        }
+    });
+
+    const nextButton = document.createElement('span');
+    nextButton.innerHTML = '&#9654;'; // Biểu tượng mũi tên phải
+    nextButton.classList.add('next');
+    nextButton.addEventListener('click', () => {
+        if (currentIndex < images.length - 1) {
+            currentIndex++;
+            img.src = images[currentIndex];
+            currentScale = 1; // Đặt lại scale khi chuyển hình
+            img.style.transform = `scale(${currentScale})`;
+        }
+    });
     const img = document.createElement('img');
     img.src = imageSrc;
     img.classList.add('modal-image');
 
     modalContent.appendChild(closeButton);
+    modalContent.appendChild(zoomButton);
+    modalContent.appendChild(prevButton);
+    modalContent.appendChild(nextButton);
     modalContent.appendChild(img);
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
@@ -454,6 +450,7 @@ function enlargeImage(imageSrc) {
         }
     });
 }
+
 async function loadModel() {
     const model = tf.sequential();
     return model;

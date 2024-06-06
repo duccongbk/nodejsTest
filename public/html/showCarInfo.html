@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 
 </head>
 
@@ -37,20 +37,12 @@
                 </div>
                 <textarea name="comment" id="comment" placeholder="Write your comment here..." required></textarea>
                 <input type="file" id="imageUpload" style="display: none;" accept="image/*" multiple>
-                <button type="button" id="uploadImageButton">📷</button>
+                <button type="button" id="uploadImageButton" class="uploadImageButton">📷</button>
                 <div id="previewContainer"></div>
                 <button type="submit" id="btn_Comment">Send</button>
             </form>
         </div>
-        <!-- <div id="modal" class="modal" onclick="toggleEnlargeImage()">
-            <span class="close">×</span>
-            <div id="modal-content">
-                <img id="modal-image" class="modal-image" src="" alt="Enlarged Image">
-            </div>
-        </div> -->
-
     </div>
-
     <script src="/public/js/showCarInfo.js"></script>
 </body>
 

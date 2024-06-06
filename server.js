@@ -281,9 +281,9 @@ app.post('/login', (req, res, next) => {
             if (result.length > 0) {
                 // Nếu tìm thấy người dùng với số điện thoại và mật khẩu khớp
                 const user = result[0];
-                const expiresIn = 200;
+                const expiresIn = 600;
                 const token = jwt.sign({ id: user.id_user }, secretKey, { expiresIn: expiresIn });
-                const expirationDate = new Date(Date.now() + expiresIn * 100);
+                const expirationDate = new Date(Date.now() + expiresIn * 1000);
                 res.cookie('jwt', token, { httpOnly: true, expires: expirationDate });
 
                 // Kiểm tra xem người dùng có vai trò là admin không

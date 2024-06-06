@@ -15,7 +15,7 @@ body {
 }
 
 .container-wrapper {
-    margin-top: 100px;
+    margin-top: 300px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -24,7 +24,7 @@ body {
 
 .container {
     width: 60%;
-    max-width: 1200px;
+    max-width: 1000px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
@@ -150,7 +150,7 @@ body {
     overflow-y: auto;
     margin-bottom: 10px;
     border-bottom: 1px solid #FFA500;
-    max-height: 770px;
+    max-height: 600px;
 }
 
 .form_user_comment {
@@ -162,12 +162,18 @@ body {
 
 textarea {
     max-width: 100%;
-    height: 60px;
-    /* margin-bottom: 10px;
-    margin-top: 10px; */
+    height: 100px;
     resize: auto;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    line-height: 40px;
 }
 
+.uploadImageButton {
+    color: white;
+    background-color: transparent;
+
+}
 
 button {
     align-self: flex-end;
@@ -226,16 +232,11 @@ li p strong {
 
 .preview-image {
     width: 40px;
-    /* Cố định chiều rộng */
     height: 40px;
-    /* Cố định chiều cao */
     object-fit: cover;
-    /* Đảm bảo hình ảnh giữ tỷ lệ và lấp đầy khung */
     border: 1px solid #ddd;
-    /* Tùy chọn: thêm viền để phân biệt */
     border-radius: 4px;
     object-fit: contain;
-    /* Tùy chọn: bo góc */
 }
 
 .remove-button {
@@ -243,17 +244,13 @@ li p strong {
     top: 2px;
     right: 2px;
     background: rgba(255, 0, 0, 0.7);
-    /* Nền đỏ mờ */
     color: white;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     padding: 2px 6px;
-    /* Kích thước nút nhỏ hơn */
     font-size: 10px;
-    /* Cỡ chữ nhỏ hơn */
     line-height: 12px;
-    /* Chiều cao dòng */
 }
 
 .enlarged-image-container {
@@ -276,20 +273,16 @@ li p strong {
 
 .comment-image {
     max-width: 10%;
-    /* Đặt chiều rộng tối đa là 10% của kích thước gốc */
     height: auto;
-    /* Giữ tỷ lệ khung hình khi thay đổi kích thước */
     display: block;
-    /* Đảm bảo ảnh được hiển thị một dòng */
     margin-bottom: 10px;
-    /* Thêm khoảng cách giữa các ảnh */
     border: 1px solid #0c0b0b;
     cursor: pointer;
 }
 
 .modal {
     position: fixed;
-    top: 0;
+    top: 10px;
     left: 0;
     width: 100%;
     height: 100%;
@@ -301,22 +294,40 @@ li p strong {
 }
 
 .modal-content {
+    top: 20px;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    max-height: 90%;
+    overflow: auto;
+    /* Cho phép cuộn trong modal-content */
+
 }
 
 .modal-image {
+    margin-top: 200px;
     background-size: cover;
-    width: 1200px;
+    width: 800px;
     height: 1200px;
+    transition: transform 0.25s ease;
+
 }
 
-.close {
+.close,
+.zoom,
+.prev,
+.next {
     position: absolute;
-    top: 10px;
+    top: 20px;
     right: 10px;
     color: rgb(235, 13, 13);
     font-size: 24px;
     cursor: pointer;
+    z-index: 1001;
 }
 
 .comment-buttons {
@@ -381,6 +392,7 @@ li p strong {
     margin: 0;
     /* Loại bỏ lề xung quanh nội dung */
 }
+
 .reply-list li button {
     /* Tùy chỉnh lề cho phần nội dung của mỗi phản hồi */
     background-color: #007bff;
@@ -390,4 +402,40 @@ li p strong {
     margin-right: 5px;
     cursor: pointer;
     font-size: 8px;
+}
+
+.close {
+    right: 10px;
+    color: rgb(235, 13, 13);
+}
+
+.zoom {
+    right: 50px;
+    /* Điều chỉnh vị trí nút zoom */
+    color: rgb(255, 0, 76);
+}
+
+.prev,
+.next {
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 36px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 50%;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
 }
